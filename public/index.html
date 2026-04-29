@@ -2240,13 +2240,49 @@ function escHtml(s) {
 }
 
 function formatAIResponse(text) {
-  return text
-    .replace(/\n\n/g, '</p><p class="mt-2">')
-    .replace(/\n/g, '<br>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code style="background:rgba(0,88,188,0.08);padding:1px 5px;border-radius:4px;font-size:12px;">$1</code>')
-    .replace(/^- (.+)/gm, '<div style="display:flex;gap:6px;margin-top:3px;"><span style="color:var(--primary);flex-shrink:0;">•</span><span>$1</span></div>')
-    .replace(/^(✅|❌|⚠️|📊|💷|🎯|📋|🔑|💸|📈) (.+)/gm, '<div style="display:flex;gap:6px;margin-top:4px;"><span>$1</span><span>$2</span></div>');
+  // Strip all emojis
+  text = text.replace(/[\u{1F300}-\u{1FFFF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}|\u{FE00}-\u{FE0F}|\u{1F900}-\u{1F9FF}|\u{1FA00}-\u{1FA6F}|\u{1FA70}-\u{1FAFF}]/gu, '');
+
+  // Convert markdown tables to HTML
+  text = text.replace(/(\|.+\|\n\|[-| :]+\|\n)((?:\|.+\|\n?)*)/gm, function(match, header, body) {
+    const headerCells = header.split('\n')[0].split('|').filter(c => c.trim()).map(c =>
+      `<th style="padding:10px 14px;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--outline);text-align:left;border-bottom:2px solid var(--outline-variant);">${c.trim()}</th>`
+    ).join('');
+    const rows = body.trim().split('\n').filter(r => r.trim()).map(row => {
+      const cells = row.split('|').filter(c => c.trim() !== undefined && row.indexOf(c) > 0).map((c, i) => {
+        const val = c.trim();
+        const isStatus = val === 'PAUSED' || val === 'ENABLED' || val === 'ACTIVE';
+        const isPaused = val === 'PAUSED';
+        const isActive = val === 'ENABLED' || val === 'ACTIVE';
+        if (isStatus) {
+          const color = isActive ? '#16a34a' : '#f59e0b';
+          const bg = isActive ? 'rgba(22,163,74,0.08)' : 'rgba(245,158,11,0.08)';
+          return `<td style="padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(0,0,0,0.05);"><span style="background:${bg};color:${color};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">${val}</span></td>`;
+        }
+        return `<td style="padding:10px 14px;font-size:13px;color:var(--on-surface);border-bottom:1px solid rgba(0,0,0,0.05);">${val}</td>`;
+      }).join('');
+      return `<tr style="transition:background .1s;" onmouseover="this.style.background='rgba(0,88,188,0.03)'" onmouseout="this.style.background=''">${cells}</tr>`;
+    }).join('');
+    return `<div style="overflow-x:auto;margin:10px 0;border-radius:10px;border:1px solid var(--outline-variant);"><table style="width:100%;border-collapse:collapse;"><thead><tr style="background:var(--surface-low);">${headerCells}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  });
+
+  // Section headers
+  text = text.replace(/^### (.+)$/gm, '<div style="font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--outline);margin:14px 0 6px;padding-bottom:5px;border-bottom:1px solid rgba(0,0,0,.05);">$1</div>');
+  text = text.replace(/^## (.+)$/gm, '<div style="font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--outline);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid rgba(0,0,0,.05);">$1</div>');
+  // Bold
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--on-surface);font-weight:700;">$1</strong>');
+  // Code
+  text = text.replace(/`([^`]+)`/g, '<code style="background:rgba(0,88,188,0.08);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:12px;">$1</code>');
+  // HR
+  text = text.replace(/^---$/gm, '<div style="height:1px;background:rgba(0,0,0,.06);margin:12px 0;"></div>');
+  // Numbered list
+  text = text.replace(/^\d+\. (.+)$/gm, '<div style="display:flex;gap:8px;margin:5px 0;align-items:flex-start;"><span style="min-width:18px;height:18px;border-radius:4px;background:var(--primary-light);color:var(--primary);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">·</span><span style="font-size:13px;line-height:1.6;">$1</span></div>');
+  // Bullets
+  text = text.replace(/^[-•] (.+)$/gm, '<div style="display:flex;gap:8px;margin:4px 0;align-items:flex-start;"><span style="width:4px;height:4px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:7px;"></span><span style="font-size:13px;line-height:1.6;">$1</span></div>');
+  // Paragraphs
+  text = text.replace(/\n\n/g, '</p><p style="margin-top:8px;">');
+  text = text.replace(/\n/g, '<br>');
+  return '<p style="margin:0;">' + text + '</p>';
 }
 
 async function sendChat() {
@@ -2268,11 +2304,24 @@ async function sendChat() {
   addThinking();
 
   try {
-    const systemPrompt = `You are the RubixAds AI, a specialist Google Ads agent for Asif Rahim at Rubixness (UK consulting firm). You have full access to the Rubixness Google Ads account (ID: 400-808-1199) via a set of MCP tools.
+    const systemPrompt = `You are the RubixAds AI Strategist — a senior Google Ads consultant for Asif Rahim at Rubixness (UK consulting firm). You have direct access to Google Ads account ID 400-808-1199 via MCP tools.
 
-Your available tools include: list_campaigns, list_tools, get_campaign_performance, create_campaign, confirm_create_campaign, pause_campaign, confirm_pause_campaign, enable_campaign, confirm_enable_campaign, rename_campaign, confirm_rename_campaign, delete_campaign, confirm_delete_campaign, update_campaign_budget, confirm_update_campaign_budget, list_ad_groups, create_ad_group, update_ad_group, pause_ad_group, enable_ad_group, delete_ad_group, list_ads, create_ad, update_ad, pause_ad, enable_ad, remove_ad, list_keywords, add_keywords, pause_keyword, enable_keyword, update_keyword_bid, remove_keyword, list_negative_keywords, add_sitelink_asset, add_callout_asset, add_call_asset, list_assets, remove_asset, add_structured_snippet_asset, add_lead_form_asset, add_price_asset, add_promotion_asset, get_keyword_performance, get_ad_group_performance, get_ad_performance, get_search_terms_report, get_quality_scores, get_auction_insights, get_impression_share, get_recommendations, apply_recommendation, dismiss_recommendation, get_wasted_spend_report, list_conversion_actions, create_conversion_action, get_conversion_tag, duplicate_campaign, clone_ad, remove_negative_keyword, update_ad_schedule, list_accounts, switch_account, get_account_health_score, add_price_asset, add_promotion_asset, get_landing_page_report, forecast_budget, create_remarketing_audience, add_audience_targeting, get_account_summary, list_campaign_settings, update_device_bid_adjustment, update_location_targeting, add_ad_schedule.
+CRITICAL FORMATTING RULES — follow these exactly:
+1. NEVER use emojis of any kind. Not in tables, not in text, nowhere.
+2. When presenting campaign or keyword data, ALWAYS use markdown tables with proper headers and separators.
+3. Use ## for section headers, **bold** for key metrics.
+4. End every response with a numbered list of recommended next actions.
+5. Currency is always GBP with the £ symbol.
+6. Be direct and analytical — no fluff, no filler phrases.
 
-Always use tools to fetch real data — never make up numbers. For destructive actions (delete, pause), show a confirmation summary before calling confirm_* tools. Format responses clearly with emojis, bullet points and bold text for readability. Currency is always GBP (£).`;
+EXAMPLE table format:
+| Campaign | Status | Budget | Spend | CTR |
+|---|---|---|---|---|
+| Strategy Consulting | PAUSED | £3.33 | £0 | — |
+
+Available tools: list_campaigns, list_tools, get_campaign_performance, create_campaign, confirm_create_campaign, pause_campaign, confirm_pause_campaign, enable_campaign, confirm_enable_campaign, rename_campaign, confirm_rename_campaign, delete_campaign, confirm_delete_campaign, update_campaign_budget, confirm_update_campaign_budget, list_ad_groups, create_ad_group, update_ad_group, pause_ad_group, enable_ad_group, delete_ad_group, list_ads, create_ad, update_ad, pause_ad, enable_ad, remove_ad, list_keywords, add_keywords, pause_keyword, enable_keyword, update_keyword_bid, remove_keyword, list_negative_keywords, add_sitelink_asset, add_callout_asset, add_call_asset, list_assets, remove_asset, add_structured_snippet_asset, get_keyword_performance, get_ad_group_performance, get_ad_performance, get_search_terms_report, get_quality_scores, get_auction_insights, get_impression_share, get_recommendations, apply_recommendation, dismiss_recommendation, get_wasted_spend_report, list_conversion_actions, create_conversion_action, get_conversion_tag, duplicate_campaign, clone_ad, remove_negative_keyword, update_ad_schedule, list_accounts, switch_account, get_account_health_score, get_landing_page_report, forecast_budget, get_account_summary, list_campaign_settings, update_device_bid_adjustment, update_location_targeting, add_ad_schedule.
+
+Always use tools to fetch real data. For destructive actions show confirmation before calling confirm_* tools.`;
 
     const response = await fetch('/api/chat', {
       method: 'POST',
