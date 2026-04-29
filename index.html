@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RubixAds · AI Google Ads Intelligence</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+* { font-family: 'Inter', sans-serif; }
+
+:root {
+  --primary: #0058bc;
+  --primary-light: #dce8ff;
+  --secondary: #4c4aca;
+  --tertiary: #8a2bb9;
+  --surface: #faf9fe;
+  --surface-low: #f4f3f8;
+  --surface-container: #eeedf3;
+  --on-surface: #1a1b1f;
+  --on-surface-variant: #414755;
+  --outline: #717786;
+  --outline-variant: #c1c6d7;
+  --error: #ba1a1a;
+  --success: #1a7a3c;
+}
+
+body { background: var(--surface); color: var(--on-surface); }
+
+/* Glass cards */
+.glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04), inset 1px 1px 0 rgba(255,255,255,1), inset -1px -1px 0 rgba(0,0,0,0.02);
+}
+
+.glass-sm {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+/* Nav item active */
+.nav-active {
+  background: rgba(0,88,188,0.08);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Sidebar */
+.sidebar { width: 240px; min-height: 100vh; }
+
+/* AI chip */
+.ai-chip {
+  background: linear-gradient(135deg, #0058bc, #4c4aca);
+  color: white;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Segmented control */
+.seg-ctrl { background: var(--surface-container); border-radius: 8px; padding: 3px; display: inline-flex; gap: 2px; }
+.seg-btn { padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--outline); cursor: pointer; transition: all 0.15s; user-select: none; }
+.seg-btn.active { background: white; color: var(--on-surface); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+/* Status badges */
+.badge-live { background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+.badge-paused { background: #f1f5f9; color: #64748b; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+.badge-active { background: #dbeafe; color: #1d4ed8; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+
+/* Stats typography */
+.stat-xl { font-size: 36px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; }
+.stat-lg { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; }
+
+/* Toggle switch */
+.toggle { position: relative; width: 44px; height: 24px; }
+.toggle input { display: none; }
+.toggle-track { position: absolute; inset: 0; background: var(--outline-variant); border-radius: 999px; transition: .2s; cursor: pointer; }
+.toggle input:checked + .toggle-track { background: var(--primary); }
+.toggle-thumb { position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: .2s; pointer-events: none; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+.toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+/* Section pages */
+.page { display: none; }
+.page.active { }
+
+/* Insight cards border accents */
+.insight-blue { border-left: 4px solid var(--primary); }
+.insight-purple { border-left: 4px solid var(--tertiary); }
+.insight-orange { border-left: 4px solid #f97316; }
+
+/* Input styles */
+.input-field {
+  width: 100%;
+  background: var(--surface-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: var(--on-surface);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-field:focus { border-color: var(--primary); background: white; }
+
+/* Label caps */
+.label-caps { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--outline); }
+
+/* Material icons */
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; font-size: 20px; }
+
+/* Animations */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.fade-up { animation: fadeUp 0.35s ease both; }
+.fade-up:nth-child(1) { animation-delay: 0.05s; }
+.fade-up:nth-child(2) { animation-delay: 0.1s; }
+.fade-up:nth-child(3) { animation-delay: 0.15s; }
+.fade-up:nth-child(4) { animation-delay: 0.2s; }
+
+/* Hover effects */
+.row-hover:hover { background: rgba(0,88,188,0.03); cursor: pointer; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--outline-variant); border-radius: 4px; }
+
+/* Profile avatar */
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0058bc, #4c4aca); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+
+/* Progress bar */
+.progress-track { height: 6px; background: var(--surface-container); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+
+/* Notification dot */
+.notif-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; position: absolute; top: 6px; right: 6px; border: 2px solid white; }
+
+/* ── DARK MODE ────────────────────────────────── */
+body.dark {
+  --primary: #4d9eff;
+  --primary-light: rgba(77,158,255,0.15);
+  --secondary: #8b89ff;
+  --tertiary: #cc88ff;
+  --surface: #0d1117;
+  --surface-low: #161b22;
+  --surface-container: #21262d;
+  --on-surface: #e6edf3;
+  --on-surface-variant: #8b949e;
+  --outline: #484f58;
+  --outline-variant: #30363d;
+  --error: #f85149;
+  --success: #3fb950;
+}
+
+body.dark { background: #0d1117; color: #e6edf3; }
+
+body.dark .glass {
+  background: rgba(22,27,34,0.85);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 1px 1px 0 rgba(255,255,255,0.05);
+}
+
+body.dark .glass-sm {
+  background: rgba(22,27,34,0.7);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+body.dark aside {
+  background: rgba(13,17,23,0.95) !important;
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+body.dark header {
+  background: rgba(13,17,23,0.92) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+body.dark .nav-active {
+  background: rgba(77,158,255,0.15) !important;
+  color: #4d9eff !important;
+}
+
+body.dark .seg-ctrl {
+  background: #21262d;
+}
+
+body.dark .seg-btn.active {
+  background: #30363d;
+  color: #e6edf3;
+}
+
+body.dark .input-field {
+  background: #21262d;
+  border-color: #30363d;
+  color: #e6edf3;
+}
+
+body.dark .input-field:focus {
+  background: #161b22;
+  border-color: #4d9eff;
+}
+
+body.dark table thead tr {
+  background: rgba(22,27,34,0.5) !important;
+}
+
+body.dark .row-hover:hover {
+  background: rgba(77,158,255,0.05) !important;
+}
+
+body.dark .badge-live {
+  background: rgba(63,185,80,0.15);
+  color: #3fb950;
+}
+
+body.dark .badge-paused {
+  background: rgba(72,79,88,0.4);
+  color: #8b949e;
+}
+
+body.dark .badge-active {
+  background: rgba(77,158,255,0.15);
+  color: #4d9eff;
+}
+
+body.dark .progress-track {
+  background: #21262d;
+}
+
+body.dark .toggle-track {
+  background: #30363d;
+}
+
+body.dark select option {
+  background: #161b22;
+  color: #e6edf3;
+}
+
+body.dark .notif-dot {
+  border-color: #0d1117;
+}
+</style>
+</head>
+<body class="min-h-screen flex">
+
+<!-- SIDEBAR -->
+<aside class="sidebar glass flex-shrink-0 flex flex-col sticky top-0 h-screen border-r border-white/60 z-40">
+  
+  <!-- Logo area - always white bg -->
+  <div class="logo-bg p-5 border-b border-white/50" style="background:white;">
+    <img src="data:image/png;base64,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" alt="Rubixness" style="width:140px;height:auto;display:block;">
+    <p class="label-caps mt-2" style="color:var(--primary);opacity:.65;">RubixAds</p>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+    <div class="label-caps px-3 py-2 mt-1">Overview</div>
+    <a href="#" onclick="showPage('overview')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" id="nav-overview">
+      <span class="material-symbols-outlined" style="font-size:18px;">dashboard</span>
+      Dashboard
+    </a>
+    <a href="#" onclick="showPage('ai')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-500" id="nav-ai">
+      <span class="material-symbols-outlined" style="font-size:18px;">smart_toy</span>
+      AI Strategist
+    </a>
+
+    <div class="label-caps px-3 py-2 mt-3">Manage</div>
+    <a href="#" onclick="showPage('campaigns')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-500" id="nav-campaigns">
+      <span class="material-symbols-outlined" style="font-size:18px;">ads_click</span>
+      Campaigns
+    </a>
+    <a href="#" onclick="showPage('performance')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-500" id="nav-performance">
+      <span class="material-symbols-outlined" style="font-size:18px;">insights</span>
+      Performance
+    </a>
+    <a href="#" onclick="showPage('keywords')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-500" id="nav-keywords">
+      <span class="material-symbols-outlined" style="font-size:18px;">key</span>
+      Keywords
+    </a>
+    <a href="#" onclick="showPage('assets')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-500" id="nav-assets">
+      <span class="material-symbols-outlined" style="font-size:18px;">image</span>
+      Assets
+    </a>
+
+    <div class="label-caps px-3 py-2 mt-3">Account</div>
+    <a href="#" onclick="showPage('settings')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-500" id="nav-settings">
+      <span class="material-symbols-outlined" style="font-size:18px;">settings</span>
+      Settings
+    </a>
+    <a href="#" onclick="showPage('profile')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-500" id="nav-profile">
+      <span class="material-symbols-outlined" style="font-size:18px;">manage_accounts</span>
+      Profile
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  <div class="p-4 border-t border-white/50">
+    <div class="flex items-center gap-3 px-1">
+      <div class="avatar">A</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-600 truncate" style="font-weight:600;">Asif Rahim</p>
+        <p class="text-xs truncate" style="color:var(--outline);">329-934-8141</p>
+      </div>
+      <button onclick="showPage('profile')" class="p-1 rounded-lg hover:bg-black/5 transition-colors">
+        <span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">more_vert</span>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="flex-1 flex flex-col min-w-0">
+
+  <!-- TOPBAR -->
+  <header class="glass-sm sticky top-0 z-30 border-b border-white/60 px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="glass-sm flex items-center gap-2 px-3 py-2 rounded-full" style="background:var(--surface-low);">
+        <span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">search</span>
+        <input placeholder="Search campaigns, keywords..." class="bg-transparent border-none outline-none text-sm w-52" style="color:var(--on-surface);">
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <div style="position:relative;">
+        <button class="p-2 rounded-xl hover:bg-black/5 transition-colors">
+          <span class="material-symbols-outlined" style="color:var(--outline);">notifications</span>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+      <button class="p-2 rounded-xl hover:bg-black/5 transition-colors">
+        <span class="material-symbols-outlined" style="color:var(--outline);">help_outline</span>
+      </button>
+      <div class="w-px h-6 mx-1" style="background:var(--outline-variant);"></div>
+      <button onclick="showPage('campaigns')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90" style="background:var(--primary);">
+        <span class="material-symbols-outlined" style="font-size:16px;">rocket_launch</span>
+        Launch Campaign
+      </button>
+      <div onclick="showPage('profile')" class="avatar cursor-pointer">A</div>
+    </div>
+  </header>
+
+  <!-- SCROLLABLE CONTENT -->
+  <main class="flex-1 overflow-y-auto p-8" style="background:var(--surface);">
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE: OVERVIEW / DASHBOARD
+    ═══════════════════════════════════════════════ -->
+    <div id="page-overview" class="page active">
+      
+      <!-- Header -->
+      <div class="flex items-start justify-between mb-8">
+        <div>
+          <p class="label-caps mb-1">Performance Overview</p>
+          <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Morning, Asif.</h1>
+          <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Your AI strategies are generating <strong style="color:var(--primary);">+12.4% higher CTR</strong> than last week.</p>
+        </div>
+        <div class="seg-ctrl">
+          <div class="seg-btn active" onclick="setTime(this,'7d')">7d</div>
+          <div class="seg-btn" onclick="setTime(this,'30d')">30d</div>
+          <div class="seg-btn" onclick="setTime(this,'90d')">90d</div>
+        </div>
+      </div>
+
+      <!-- KPI Row 1 -->
+      <div class="grid grid-cols-3 gap-5 mb-5">
+        <!-- Total Spend -->
+        <div class="glass rounded-2xl p-6 fade-up">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="label-caps mb-3">Total Spend</p>
+              <p class="stat-xl" style="color:var(--on-surface);">£842.00</p>
+              <p class="text-sm mt-2 font-medium" style="color:#16a34a;">↑ +12.4% vs prev. period</p>
+            </div>
+            <div class="p-2 rounded-xl" style="background:var(--primary-light);">
+              <span class="material-symbols-outlined" style="color:var(--primary);">payments</span>
+            </div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:68%;"></div>
+          </div>
+          <p class="text-xs mt-1.5" style="color:var(--outline);">68% of monthly budget used</p>
+        </div>
+
+        <!-- CTR -->
+        <div class="glass rounded-2xl p-6 fade-up">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="label-caps mb-3">CTR (Avg)</p>
+              <p class="stat-xl" style="color:var(--on-surface);">3.84%</p>
+              <p class="text-sm mt-2" style="color:var(--on-surface-variant);">Benchmark: <strong>2.1%</strong></p>
+            </div>
+            <div class="p-2 rounded-xl" style="background:#f0fdf4;">
+              <span class="material-symbols-outlined" style="color:#16a34a;">ads_click</span>
+            </div>
+          </div>
+          <!-- Mini sparkline bars -->
+          <div class="flex items-end gap-1 h-10">
+            <div class="rounded-sm flex-1" style="height:30%;background:var(--primary-light);"></div>
+            <div class="rounded-sm flex-1" style="height:45%;background:var(--primary-light);"></div>
+            <div class="rounded-sm flex-1" style="height:60%;background:var(--primary-light);"></div>
+            <div class="rounded-sm flex-1" style="height:50%;background:var(--primary-light);"></div>
+            <div class="rounded-sm flex-1" style="height:70%;background:var(--primary-light);"></div>
+            <div class="rounded-sm flex-1" style="height:80%;background:var(--primary-light);"></div>
+            <div class="rounded-sm flex-1" style="height:100%;background:var(--primary);"></div>
+          </div>
+        </div>
+
+        <!-- Conversions -->
+        <div class="glass rounded-2xl p-6 fade-up">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <p class="label-caps mb-3">Conversions</p>
+              <p class="stat-xl" style="color:var(--on-surface);">38</p>
+              <p class="text-sm mt-2" style="color:var(--on-surface-variant);">CPA: <strong>£22.16</strong></p>
+            </div>
+            <div class="p-2 rounded-xl" style="background:#faf0ff;">
+              <span class="material-symbols-outlined" style="color:var(--tertiary);">conversion_path</span>
+            </div>
+          </div>
+          <div class="flex items-end gap-1 h-10">
+            <div class="rounded-sm flex-1" style="height:40%;background:#f3e8ff;"></div>
+            <div class="rounded-sm flex-1" style="height:55%;background:#f3e8ff;"></div>
+            <div class="rounded-sm flex-1" style="height:45%;background:#f3e8ff;"></div>
+            <div class="rounded-sm flex-1" style="height:65%;background:#f3e8ff;"></div>
+            <div class="rounded-sm flex-1" style="height:75%;background:#f3e8ff;"></div>
+            <div class="rounded-sm flex-1" style="height:85%;background:#f3e8ff;"></div>
+            <div class="rounded-sm flex-1" style="height:100%;background:var(--tertiary);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Row 2 -->
+      <div class="grid grid-cols-4 gap-5 mb-8">
+        <div class="glass rounded-2xl p-5 fade-up">
+          <p class="label-caps mb-2">Impressions</p>
+          <p class="stat-lg">42,190</p>
+          <p class="text-xs mt-1.5" style="color:var(--outline);">— stable</p>
+        </div>
+        <div class="glass rounded-2xl p-5 fade-up">
+          <p class="label-caps mb-2">Avg CTR</p>
+          <p class="stat-lg">3.04%</p>
+          <p class="text-xs mt-1.5" style="color:#16a34a;">↑ +0.3 pts</p>
+        </div>
+        <div class="glass rounded-2xl p-5 fade-up">
+          <p class="label-caps mb-2">Avg CPC</p>
+          <p class="stat-lg">£0.66</p>
+          <p class="text-xs mt-1.5" style="color:#dc2626;">↑ +4%</p>
+        </div>
+        <div class="glass rounded-2xl p-5 fade-up">
+          <p class="label-caps mb-2">Conv. Rate</p>
+          <p class="stat-lg">2.96%</p>
+          <p class="text-xs mt-1.5" style="color:#16a34a;">↑ +0.5 pts</p>
+        </div>
+      </div>
+
+      <!-- AI Insights -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="ai-chip"><span class="material-symbols-outlined" style="font-size:13px;">auto_awesome</span> AI Insights Chip</span>
+          <h2 class="text-lg font-semibold">Optimization Suggestions</h2>
+        </div>
+        <div class="grid grid-cols-3 gap-5">
+          <div class="glass rounded-2xl p-6 insight-blue">
+            <div class="flex items-center justify-between mb-3">
+              <span class="label-caps" style="color:var(--primary);">Bid Strategy</span>
+              <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">trending_up</span>
+            </div>
+            <h3 class="font-semibold mb-2">Adjust Bid Strategy</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--on-surface-variant);">AI predicts a 15% increase in conversions if bids are raised by 10% for Strategy Consulting keywords during peak hours (9AM–11AM).</p>
+            <button style="color:var(--primary);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:4px;">
+              Apply Strategy <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+            </button>
+          </div>
+          <div class="glass rounded-2xl p-6 insight-purple">
+            <div class="flex items-center justify-between mb-3">
+              <span class="label-caps" style="color:var(--tertiary);">Creative</span>
+              <span class="material-symbols-outlined" style="color:var(--tertiary);font-size:18px;">draw</span>
+            </div>
+            <h3 class="font-semibold mb-2">Creative Fatigue Warning</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--on-surface-variant);">"AI Solutions" ad CTR has dropped 22% this week. Consider rotating in new headlines tested in similar UK consulting campaigns.</p>
+            <button style="color:var(--tertiary);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:4px;">
+              Rotate Assets <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+            </button>
+          </div>
+          <div class="glass rounded-2xl p-6 insight-orange">
+            <div class="flex items-center justify-between mb-3">
+              <span class="label-caps" style="color:#ea580c;">Keywords</span>
+              <span class="material-symbols-outlined" style="color:#ea580c;font-size:18px;">block</span>
+            </div>
+            <h3 class="font-semibold mb-2">Negative Keyword Discovery</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color:var(--on-surface-variant);">High spend with zero conversions detected on queries containing "free" and "cheap". Recommend adding as negatives.</p>
+            <button style="color:#ea580c;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:4px;">
+              Review List <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="grid grid-cols-3 gap-5 mb-8">
+        <div class="glass rounded-2xl p-6 col-span-2">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <p class="label-caps mb-1">Spend & Conversions</p>
+              <h3 class="font-semibold">Daily Trend</h3>
+            </div>
+            <div class="seg-ctrl">
+              <div class="seg-btn active">30D</div>
+              <div class="seg-btn">7D</div>
+              <div class="seg-btn">90D</div>
+            </div>
+          </div>
+          <canvas id="trendChart" height="160"></canvas>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <p class="label-caps mb-1">Budget Split</p>
+          <h3 class="font-semibold mb-5">By Campaign</h3>
+          <canvas id="donutChart" height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- Campaign Table -->
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="px-6 py-5 flex items-center justify-between border-b border-white/50">
+          <div>
+            <p class="label-caps mb-1">Top Campaigns</p>
+            <h3 class="font-semibold">Performance Overview</h3>
+          </div>
+          <div class="flex items-center gap-3">
+            <button class="glass-sm flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style="color:var(--on-surface-variant);">
+              <span class="material-symbols-outlined" style="font-size:14px;">filter_list</span> Filter
+            </button>
+            <button class="glass-sm flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style="color:var(--on-surface-variant);">
+              <span class="material-symbols-outlined" style="font-size:14px;">download</span> Export
+            </button>
+          </div>
+        </div>
+        <table class="w-full text-left">
+          <thead>
+            <tr style="background:rgba(244,243,248,0.5);">
+              <th class="label-caps px-6 py-4">Campaign</th>
+              <th class="label-caps px-6 py-4">Status</th>
+              <th class="label-caps px-6 py-4">Spend</th>
+              <th class="label-caps px-6 py-4">Conv. Rate</th>
+              <th class="label-caps px-6 py-4">CTR</th>
+              <th class="label-caps px-6 py-4">CPL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:var(--primary);">S</div>
+                  <div>
+                    <p class="font-semibold text-sm">Strategy Consulting</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Smart Bidding</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-5 font-semibold text-sm">£349</td>
+              <td class="px-6 py-5 text-sm font-medium" style="color:#16a34a;">↑ 3.8%</td>
+              <td class="px-6 py-5 text-sm font-medium" style="color:#16a34a;">4.12%</td>
+              <td class="px-6 py-5 font-bold text-sm">£19.40</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:var(--secondary);">A</div>
+                  <div>
+                    <p class="font-semibold text-sm">AI Solutions UK</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Maximize Clicks</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-5 font-semibold text-sm">£287</td>
+              <td class="px-6 py-5 text-sm font-medium">3.1%</td>
+              <td class="px-6 py-5 text-sm font-medium">3.56%</td>
+              <td class="px-6 py-5 font-bold text-sm">£22.08</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:#f97316;">B</div>
+                  <div>
+                    <p class="font-semibold text-sm">Brand Awareness</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Target Spend</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-5 font-semibold text-sm">£206</td>
+              <td class="px-6 py-5 text-sm font-medium" style="color:#dc2626;">↓ 1.9%</td>
+              <td class="px-6 py-5 text-sm font-medium" style="color:#dc2626;">1.9%</td>
+              <td class="px-6 py-5 font-bold text-sm" style="color:#dc2626;">£29.43</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style="background:var(--surface-container);color:var(--outline);">F</div>
+                  <div>
+                    <p class="font-semibold text-sm">Financial Services</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Paused</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5"><span class="badge-paused">Paused</span></td>
+              <td class="px-6 py-5 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-5 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-5 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-5 text-sm" style="color:var(--outline);">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="px-6 py-4 border-t border-white/40 flex justify-center">
+          <button class="text-sm font-semibold" style="color:var(--primary);">View All Campaigns →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE: AI STRATEGIST
+    ═══════════════════════════════════════════════ -->
+    <div id="page-ai" class="page" style="height:calc(100vh - 60px);display:none;flex-direction:column;padding:0;">
+      
+      <style>
+        /* AI Strategist specific styles */
+        .ai-page { font-family: 'DM Sans', 'Plus Jakarta Sans', sans-serif; }
+        
+        .ai-layout {
+          display: grid;
+          grid-template-columns: 340px 1fr;
+          height: 100%;
+          overflow: hidden;
+        }
+        
+        /* LEFT PANEL */
+        .ai-left {
+          border-right: 1px solid rgba(0,0,0,0.06);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: var(--surface-low);
+        }
+        
+        .ai-left-header {
+          padding: 24px 20px 16px;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+          flex-shrink: 0;
+        }
+        
+        .ai-left-header h2 {
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--outline);
+          margin-bottom: 4px;
+        }
+
+        .ai-left-header p {
+          font-size: 12px;
+          color: var(--on-surface-variant);
+        }
+        
+        /* Strategy Cards */
+        .strategy-cards {
+          flex: 1;
+          overflow-y: auto;
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .strategy-card {
+          background: white;
+          border-radius: 12px;
+          padding: 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: 1.5px solid transparent;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        body.dark .strategy-card {
+          background: var(--surface-container);
+          border-color: transparent;
+        }
+        
+        .strategy-card:hover {
+          border-color: var(--primary);
+          transform: translateX(2px);
+        }
+        
+        .strategy-card.active {
+          border-color: var(--primary);
+          background: rgba(0,88,188,0.04);
+        }
+        
+        body.dark .strategy-card.active {
+          background: rgba(77,158,255,0.08);
+        }
+        
+        .strategy-card-accent {
+          position: absolute;
+          left: 0; top: 0; bottom: 0;
+          width: 3px;
+          border-radius: 3px 0 0 3px;
+        }
+        
+        .sc-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+        }
+        
+        .sc-icon {
+          width: 28px; height: 28px;
+          border-radius: 7px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .sc-title {
+          font-size: 12.5px;
+          font-weight: 700;
+          color: var(--on-surface);
+          letter-spacing: -0.01em;
+        }
+        
+        .sc-desc {
+          font-size: 11.5px;
+          color: var(--on-surface-variant);
+          line-height: 1.5;
+          margin-left: 36px;
+        }
+        
+        .sc-badge {
+          margin-left: auto;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          padding: 2px 6px;
+          border-radius: 4px;
+          flex-shrink: 0;
+        }
+        
+        /* Account Health Widget */
+        .health-widget {
+          margin: 12px;
+          padding: 14px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #0058bc 0%, #4c4aca 100%);
+          flex-shrink: 0;
+        }
+        
+        .health-score {
+          font-size: 36px;
+          font-weight: 300;
+          color: white;
+          letter-spacing: -0.03em;
+          line-height: 1;
+        }
+        
+        .health-label {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.6);
+          margin-bottom: 8px;
+        }
+        
+        .health-bars {
+          display: flex; gap: 3px; margin-top: 10px;
+        }
+        
+        .health-bar {
+          flex: 1; height: 3px; border-radius: 2px;
+          background: rgba(255,255,255,0.25);
+        }
+        
+        .health-bar.filled { background: rgba(255,255,255,0.9); }
+        
+        /* RIGHT PANEL - CHAT */
+        .ai-right {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: var(--surface);
+        }
+        
+        /* Chat header */
+        .chat-header {
+          padding: 16px 24px;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-shrink: 0;
+          background: var(--surface);
+        }
+        
+        .chat-header-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .chat-avatar {
+          width: 32px; height: 32px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #0058bc, #4c4aca);
+          display: flex; align-items: center; justify-content: center;
+        }
+        
+        .chat-status {
+          display: flex; align-items: center; gap: 5px;
+        }
+        
+        .status-pulse {
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: #22c55e;
+          animation: pulse-green 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        /* Chat messages */
+        .chat-messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          scroll-behavior: smooth;
+        }
+        
+        /* Message bubbles */
+        .msg-user {
+          display: flex;
+          justify-content: flex-end;
+        }
+        
+        .msg-user-bubble {
+          max-width: 65%;
+          background: var(--primary);
+          color: white;
+          border-radius: 16px 16px 4px 16px;
+          padding: 12px 16px;
+          font-size: 13.5px;
+          line-height: 1.6;
+        }
+        
+        .msg-ai {
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+          max-width: 85%;
+        }
+        
+        .msg-ai-avatar {
+          width: 28px; height: 28px;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #0058bc, #4c4aca);
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+        
+        .msg-ai-content {
+          background: white;
+          border: 1px solid rgba(0,0,0,0.07);
+          border-radius: 4px 16px 16px 16px;
+          padding: 14px 18px;
+          font-size: 13.5px;
+          line-height: 1.7;
+          color: var(--on-surface);
+          box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        
+        body.dark .msg-ai-content {
+          background: var(--surface-low);
+          border-color: rgba(255,255,255,0.08);
+        }
+        
+        /* Rich response components */
+        .ai-section-title {
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--outline);
+          margin-bottom: 10px;
+          margin-top: 14px;
+          padding-bottom: 6px;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        .ai-section-title:first-child { margin-top: 0; }
+        
+        .ai-data-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 0;
+          border-bottom: 1px solid rgba(0,0,0,0.04);
+          font-size: 13px;
+        }
+        
+        .ai-data-row:last-child { border-bottom: none; }
+        
+        .ai-data-label { color: var(--on-surface-variant); }
+        .ai-data-value { font-weight: 600; color: var(--on-surface); }
+        .ai-data-good { color: #16a34a; font-weight: 600; }
+        .ai-data-bad { color: #dc2626; font-weight: 600; }
+        .ai-data-neutral { color: var(--on-surface-variant); }
+        
+        .ai-campaign-card {
+          background: var(--surface-low);
+          border-radius: 10px;
+          padding: 12px 14px;
+          margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        
+        body.dark .ai-campaign-card {
+          background: var(--surface-container);
+        }
+        
+        .ai-campaign-name {
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--on-surface);
+        }
+        
+        .ai-campaign-meta {
+          font-size: 11px;
+          color: var(--on-surface-variant);
+          margin-top: 2px;
+        }
+        
+        .ai-stat-chip {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: 6px;
+        }
+        
+        .ai-insight-block {
+          background: linear-gradient(135deg, rgba(0,88,188,0.06), rgba(76,74,202,0.04));
+          border: 1px solid rgba(0,88,188,0.15);
+          border-radius: 10px;
+          padding: 12px 14px;
+          margin-top: 10px;
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+        }
+        
+        .ai-insight-icon {
+          width: 24px; height: 24px;
+          background: var(--primary-light);
+          border-radius: 6px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .ai-insight-text {
+          font-size: 12.5px;
+          line-height: 1.6;
+          color: var(--on-surface-variant);
+        }
+        
+        .ai-insight-text strong { color: var(--primary); }
+        
+        .ai-action-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 6px 12px;
+          border-radius: 7px;
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          cursor: pointer;
+          transition: all 0.15s;
+          margin-top: 10px;
+          margin-right: 6px;
+          border: 1.5px solid var(--primary);
+          color: var(--primary);
+          background: transparent;
+        }
+        
+        .ai-action-btn:hover {
+          background: var(--primary);
+          color: white;
+        }
+        
+        .ai-action-btn.primary {
+          background: var(--primary);
+          color: white;
+          border-color: var(--primary);
+        }
+        
+        .ai-action-btn.primary:hover {
+          opacity: 0.9;
+        }
+        
+        .msg-time {
+          font-size: 10px;
+          color: var(--outline);
+          margin-top: 4px;
+          padding: 0 4px;
+        }
+        
+        /* Thinking animation */
+        .thinking-dots {
+          display: flex; gap: 4px; align-items: center; padding: 4px 0;
+        }
+        
+        .thinking-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: var(--primary);
+          animation: tdot 1.2s infinite;
+        }
+        
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes tdot {
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        /* Input area */
+        .chat-input-area {
+          padding: 16px 24px 20px;
+          border-top: 1px solid rgba(0,0,0,0.06);
+          flex-shrink: 0;
+          background: var(--surface);
+        }
+        
+        .quick-actions {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          margin-bottom: 12px;
+        }
+        
+        .quick-action {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 5px 11px;
+          border-radius: 20px;
+          font-size: 11.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+          background: var(--surface-low);
+          border: 1px solid var(--outline-variant);
+          color: var(--on-surface-variant);
+          user-select: none;
+        }
+        
+        .quick-action:hover {
+          background: var(--primary-light);
+          border-color: var(--primary);
+          color: var(--primary);
+        }
+        
+        .chat-input-row {
+          display: flex;
+          gap: 10px;
+          align-items: flex-end;
+        }
+        
+        .chat-textarea {
+          flex: 1;
+          background: var(--surface-low);
+          border: 1.5px solid var(--outline-variant);
+          border-radius: 12px;
+          padding: 11px 14px;
+          font-size: 13.5px;
+          color: var(--on-surface);
+          font-family: inherit;
+          resize: none;
+          outline: none;
+          transition: border-color 0.15s;
+          max-height: 120px;
+          min-height: 44px;
+          line-height: 1.5;
+        }
+        
+        .chat-textarea:focus {
+          border-color: var(--primary);
+          background: white;
+        }
+        
+        body.dark .chat-textarea:focus {
+          background: var(--surface-container);
+        }
+        
+        .chat-textarea::placeholder {
+          color: var(--outline);
+        }
+        
+        .send-btn {
+          width: 44px; height: 44px;
+          border-radius: 12px;
+          background: var(--primary);
+          border: none;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer;
+          transition: all 0.15s;
+          flex-shrink: 0;
+        }
+        
+        .send-btn:hover { opacity: 0.9; transform: scale(1.03); }
+        .send-btn:active { transform: scale(0.97); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* Context bar */
+        .context-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 0 10px;
+        }
+        
+        .context-chip {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 11px;
+          color: var(--outline);
+          font-weight: 500;
+        }
+        
+        body.dark .ai-left { background: rgba(13,17,23,0.6); }
+        body.dark .chat-header { background: var(--surface); }
+        body.dark .ai-right { background: var(--surface); }
+        body.dark .chat-input-area { background: var(--surface); }
+      </style>
+      
+      <div class="ai-layout ai-page">
+        
+        <!-- LEFT: Strategy Panel -->
+        <div class="ai-left">
+          <div class="ai-left-header">
+            <h2>Strategy Engine</h2>
+            <p>AI-powered optimisation insights</p>
+          </div>
+          
+          <!-- Account Health -->
+          <div class="health-widget">
+            <div class="health-label">Account Health Score</div>
+            <div class="health-score">72<span style="font-size:18px;opacity:.6">/100</span></div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:4px;">Grade B · Room to improve</div>
+            <div class="health-bars">
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar"></div>
+              <div class="health-bar"></div>
+              <div class="health-bar"></div>
+            </div>
+          </div>
+          
+          <!-- Strategy Cards -->
+          <div class="strategy-cards">
+            
+            <div class="strategy-card active" onclick="loadStrategy(this, 'audit')">
+              <div class="strategy-card-accent" style="background:#0058bc;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(0,88,188,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#0058bc;">analytics</span>
+                </div>
+                <span class="sc-title">Full Account Audit</span>
+                <span class="sc-badge" style="background:rgba(0,88,188,0.1);color:#0058bc;">New</span>
+              </div>
+              <div class="sc-desc">Complete health check across all campaigns, keywords and ads.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'wasted')">
+              <div class="strategy-card-accent" style="background:#dc2626;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(220,38,38,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#dc2626;">money_off</span>
+                </div>
+                <span class="sc-title">Wasted Spend Report</span>
+                <span class="sc-badge" style="background:rgba(220,38,38,0.1);color:#dc2626;">Action needed</span>
+              </div>
+              <div class="sc-desc">Keywords burning budget with zero conversions.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'keywords')">
+              <div class="strategy-card-accent" style="background:#7c3aed;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(124,58,237,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#7c3aed;">key</span>
+                </div>
+                <span class="sc-title">Keyword Opportunities</span>
+                <span class="sc-badge" style="background:rgba(124,58,237,0.1);color:#7c3aed;">Insight</span>
+              </div>
+              <div class="sc-desc">High-intent keywords missing from your campaigns.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'bids')">
+              <div class="strategy-card-accent" style="background:#059669;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(5,150,105,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#059669;">price_change</span>
+                </div>
+                <span class="sc-title">Bid Optimisation</span>
+                <span class="sc-badge" style="background:rgba(5,150,105,0.1);color:#059669;">Opportunity</span>
+              </div>
+              <div class="sc-desc">Adjust bids based on conversion performance data.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'quality')">
+              <div class="strategy-card-accent" style="background:#d97706;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(217,119,6,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#d97706;">workspace_premium</span>
+                </div>
+                <span class="sc-title">Quality Score Analysis</span>
+                <span class="sc-badge" style="background:rgba(217,119,6,0.1);color:#d97706;">Optimise</span>
+              </div>
+              <div class="sc-desc">Improve ad relevance and landing page experience.</div>
+            </div>
+
+            <div class="strategy-card" onclick="loadStrategy(this, 'forecast')">
+              <div class="strategy-card-accent" style="background:#0891b2;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(8,145,178,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#0891b2;">calendar_clock</span>
+                </div>
+                <span class="sc-title">Budget Forecast</span>
+                <span class="sc-badge" style="background:rgba(8,145,178,0.1);color:#0891b2;">Planning</span>
+              </div>
+              <div class="sc-desc">Project spend and conversions for the rest of the month.</div>
+            </div>
+            
+          </div>
+        </div>
+        
+        <!-- RIGHT: Chat Interface -->
+        <div class="ai-right">
+          
+          <!-- Chat Header -->
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <div class="chat-avatar">
+                <span class="material-symbols-outlined text-white" style="font-size:15px;">smart_toy</span>
+              </div>
+              <div>
+                <div style="font-size:13.5px;font-weight:700;color:var(--on-surface);">RubixAds AI Strategist</div>
+                <div class="chat-status">
+                  <div class="status-pulse"></div>
+                  <span style="font-size:11px;color:var(--outline);">Connected · Google Ads 400-808-1199</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button onclick="clearChat()" title="Clear conversation" style="padding:6px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;color:var(--outline);" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='none'">
+                <span class="material-symbols-outlined" style="font-size:18px;">delete_sweep</span>
+              </button>
+              <button onclick="exportChat()" title="Export conversation" style="padding:6px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;color:var(--outline);" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='none'">
+                <span class="material-symbols-outlined" style="font-size:18px;">download</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Messages -->
+          <div class="chat-messages" id="chat-messages">
+            <!-- Welcome message -->
+            <div class="msg-ai" id="welcome-msg">
+              <div class="msg-ai-avatar">
+                <span class="material-symbols-outlined text-white" style="font-size:12px;">smart_toy</span>
+              </div>
+              <div>
+                <div class="msg-ai-content">
+                  <div class="ai-section-title">RubixAds AI Strategist</div>
+                  <p style="color:var(--on-surface);font-weight:500;margin-bottom:8px;">Good day, Asif. I'm connected to your Google Ads account and ready to analyse, optimise, and execute.</p>
+                  <p style="color:var(--on-surface-variant);font-size:13px;">Select a strategy from the panel to run an automated analysis, or ask me anything directly. I can pull live data, suggest improvements, and make changes with your approval.</p>
+                  <div class="ai-insight-block">
+                    <div class="ai-insight-icon">
+                      <span class="material-symbols-outlined" style="font-size:13px;color:var(--primary);">lightbulb</span>
+                    </div>
+                    <div class="ai-insight-text">
+                      <strong>Try asking:</strong> "What should I do to improve my campaign performance?" or "Which keywords are wasting my budget?"
+                    </div>
+                  </div>
+                </div>
+                <div class="msg-time">RubixAds AI · Ready</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Input Area -->
+          <div class="chat-input-area">
+            <div class="context-bar">
+              <div class="quick-actions">
+                <div class="quick-action" onclick="quickCmd('Run a full account audit and tell me what needs improving')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">manage_search</span>
+                  Account Audit
+                </div>
+                <div class="quick-action" onclick="quickCmd('Show me the wasted spend report — keywords with no conversions')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">money_off</span>
+                  Wasted Spend
+                </div>
+                <div class="quick-action" onclick="quickCmd('List all my campaigns with their current status and performance')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">campaign</span>
+                  Campaigns
+                </div>
+                <div class="quick-action" onclick="quickCmd('What recommendations does Google have for my account?')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">tips_and_updates</span>
+                  Recommendations
+                </div>
+                <div class="quick-action" onclick="quickCmd('Forecast my budget for the rest of the month')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">trending_up</span>
+                  Forecast
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <textarea 
+                id="chat-input" 
+                class="chat-textarea" 
+                placeholder="Ask about campaign performance, request optimisations, or give instructions..."
+                rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+                oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
+              ></textarea>
+              <button onclick="sendChat()" id="send-btn" class="send-btn">
+                <span class="material-symbols-outlined text-white" style="font-size:18px;" id="send-icon">arrow_upward</span>
+              </button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+              <span style="font-size:10.5px;color:var(--outline);">Shift+Enter for new line · Enter to send</span>
+              <span style="font-size:10.5px;color:var(--outline);">MCP Server · Live</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- ═══════════════════════════════════════════════
+         PAGE: CAMPAIGNS
+    ═══════════════════════════════════════════════ -->
+    <div id="page-campaigns" class="page">
+      <div class="flex items-start justify-between mb-8">
+        <div>
+          <p class="label-caps mb-1">Campaign Management</p>
+          <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Campaigns</h1>
+          <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Manage and monitor all your Google Ads campaigns.</p>
+        </div>
+        <button class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style="background:var(--primary);">
+          <span class="material-symbols-outlined" style="font-size:16px;">add</span> New Campaign
+        </button>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="px-6 py-5 flex items-center gap-4 border-b border-white/50">
+          <div class="flex-1 glass-sm flex items-center gap-2 px-3 py-2 rounded-xl" style="background:var(--surface-low);">
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">search</span>
+            <input placeholder="Search campaigns..." class="bg-transparent border-none outline-none text-sm flex-1">
+          </div>
+          <button class="glass-sm flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style="color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:14px;">filter_list</span> Filter
+          </button>
+        </div>
+        <table class="w-full text-left">
+          <thead>
+            <tr style="background:rgba(244,243,248,0.5);">
+              <th class="label-caps px-6 py-4">Campaign Name</th>
+              <th class="label-caps px-6 py-4">Status</th>
+              <th class="label-caps px-6 py-4">Daily Budget</th>
+              <th class="label-caps px-6 py-4">Impressions</th>
+              <th class="label-caps px-6 py-4">Clicks</th>
+              <th class="label-caps px-6 py-4">CTR</th>
+              <th class="label-caps px-6 py-4">Spend</th>
+              <th class="label-caps px-6 py-4">Conv.</th>
+              <th class="label-caps px-6 py-4">CPL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:var(--primary);">S</div>
+                  <div>
+                    <p class="font-semibold text-sm">Strategy Consulting</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Maximize Clicks</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-4 text-sm font-medium">£3.33</td>
+              <td class="px-6 py-4 text-sm">12,420</td>
+              <td class="px-6 py-4 text-sm">528</td>
+              <td class="px-6 py-4 text-sm" style="color:#16a34a;">3.8%</td>
+              <td class="px-6 py-4 text-sm font-semibold">£349</td>
+              <td class="px-6 py-4 text-sm" style="color:#16a34a;">18</td>
+              <td class="px-6 py-4 text-sm font-semibold" style="color:#16a34a;">£19.40</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:var(--secondary);">A</div>
+                  <div>
+                    <p class="font-semibold text-sm">AI Solutions UK</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Target Spend</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-4 text-sm font-medium">£3.33</td>
+              <td class="px-6 py-4 text-sm">9,840</td>
+              <td class="px-6 py-4 text-sm">412</td>
+              <td class="px-6 py-4 text-sm">3.1%</td>
+              <td class="px-6 py-4 text-sm font-semibold">£287</td>
+              <td class="px-6 py-4 text-sm">13</td>
+              <td class="px-6 py-4 text-sm font-semibold">£22.08</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:#f97316;">B</div>
+                  <div>
+                    <p class="font-semibold text-sm">Brand Awareness</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Maximize Clicks</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-4 text-sm font-medium">£3.33</td>
+              <td class="px-6 py-4 text-sm">8,930</td>
+              <td class="px-6 py-4 text-sm">344</td>
+              <td class="px-6 py-4 text-sm" style="color:#dc2626;">1.9%</td>
+              <td class="px-6 py-4 text-sm font-semibold">£206</td>
+              <td class="px-6 py-4 text-sm" style="color:#dc2626;">7</td>
+              <td class="px-6 py-4 text-sm font-semibold" style="color:#dc2626;">£29.43</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style="background:var(--surface-container);color:var(--outline);">F</div>
+                  <div>
+                    <p class="font-semibold text-sm">Financial Services</p>
+                    <p class="text-xs" style="color:var(--outline);">Search · Paused</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4"><span class="badge-paused">Paused</span></td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">£3.33</td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE: PERFORMANCE
+    ═══════════════════════════════════════════════ -->
+    <div id="page-performance" class="page">
+      <div class="mb-8">
+        <p class="label-caps mb-1">Analytics</p>
+        <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Performance</h1>
+        <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Deep-dive into campaign metrics and trends.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-5 mb-5">
+        <div class="glass rounded-2xl p-6">
+          <p class="label-caps mb-1">Spend Trend</p>
+          <h3 class="font-semibold mb-4">Daily Spend · Last 30 Days</h3>
+          <canvas id="spendChart" height="200"></canvas>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <p class="label-caps mb-1">Conversion Trend</p>
+          <h3 class="font-semibold mb-4">Daily Conversions · Last 30 Days</h3>
+          <canvas id="convChart" height="200"></canvas>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <p class="label-caps mb-1">Keyword Performance</p>
+        <h3 class="font-semibold mb-5">Top Keywords by Clicks</h3>
+        <div class="space-y-4">
+          <div class="flex items-center gap-4">
+            <div class="w-5 text-xs font-bold text-center" style="color:var(--outline);">1</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-medium">business strategy consultant uk</span>
+                <span class="text-sm font-semibold">218 clicks</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width:100%;"></div></div>
+            </div>
+            <span class="text-xs w-12 text-right" style="color:var(--outline);">£0.58</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-5 text-xs font-bold text-center" style="color:var(--outline);">2</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-medium">ai solutions for business</span>
+                <span class="text-sm font-semibold">179 clicks</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width:82%;"></div></div>
+            </div>
+            <span class="text-xs w-12 text-right" style="color:var(--outline);">£0.72</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-5 text-xs font-bold text-center" style="color:var(--outline);">3</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-medium">business consulting firm london</span>
+                <span class="text-sm font-semibold">148 clicks</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width:68%;"></div></div>
+            </div>
+            <span class="text-xs w-12 text-right" style="color:var(--outline);">£0.61</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-5 text-xs font-bold text-center" style="color:var(--outline);">4</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-medium">digital transformation consultancy</span>
+                <span class="text-sm font-semibold">120 clicks</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width:55%;"></div></div>
+            </div>
+            <span class="text-xs w-12 text-right" style="color:var(--outline);">£0.89</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-5 text-xs font-bold text-center" style="color:var(--outline);">5</div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-medium">rubixness consulting</span>
+                <span class="text-sm font-semibold">96 clicks</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width:44%;"></div></div>
+            </div>
+            <span class="text-xs w-12 text-right" style="color:var(--outline);">£0.22</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE: KEYWORDS
+    ═══════════════════════════════════════════════ -->
+    <div id="page-keywords" class="page">
+      <div class="mb-8">
+        <p class="label-caps mb-1">Keyword Management</p>
+        <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Keywords</h1>
+      </div>
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-white/50 flex items-center justify-between">
+          <p class="font-semibold">All Keywords</p>
+          <div class="flex items-center gap-3">
+            <button class="glass-sm px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5" style="color:var(--primary);">
+              <span class="material-symbols-outlined" style="font-size:14px;">add</span> Add Keywords
+            </button>
+          </div>
+        </div>
+        <table class="w-full text-left">
+          <thead><tr style="background:rgba(244,243,248,0.5);">
+            <th class="label-caps px-6 py-4">Keyword</th>
+            <th class="label-caps px-6 py-4">Match Type</th>
+            <th class="label-caps px-6 py-4">Status</th>
+            <th class="label-caps px-6 py-4">Bid</th>
+            <th class="label-caps px-6 py-4">Impressions</th>
+            <th class="label-caps px-6 py-4">Clicks</th>
+            <th class="label-caps px-6 py-4">CTR</th>
+            <th class="label-caps px-6 py-4">Spend</th>
+          </tr></thead>
+          <tbody>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4 text-sm font-medium">business strategy consultant uk</td>
+              <td class="px-6 py-4"><span class="badge-active">Broad</span></td>
+              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-4 text-sm">£1.00</td>
+              <td class="px-6 py-4 text-sm">4,820</td>
+              <td class="px-6 py-4 text-sm font-medium" style="color:#16a34a;">218</td>
+              <td class="px-6 py-4 text-sm" style="color:#16a34a;">4.5%</td>
+              <td class="px-6 py-4 text-sm font-semibold">£126</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4 text-sm font-medium">ai solutions for business</td>
+              <td class="px-6 py-4"><span class="badge-active">Phrase</span></td>
+              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-4 text-sm">£1.00</td>
+              <td class="px-6 py-4 text-sm">3,960</td>
+              <td class="px-6 py-4 text-sm font-medium" style="color:#16a34a;">179</td>
+              <td class="px-6 py-4 text-sm" style="color:#16a34a;">4.5%</td>
+              <td class="px-6 py-4 text-sm font-semibold">£129</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4 text-sm font-medium">digital transformation consultancy</td>
+              <td class="px-6 py-4"><span class="badge-active">Exact</span></td>
+              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
+              <td class="px-6 py-4 text-sm">£1.50</td>
+              <td class="px-6 py-4 text-sm">2,100</td>
+              <td class="px-6 py-4 text-sm">120</td>
+              <td class="px-6 py-4 text-sm">5.7%</td>
+              <td class="px-6 py-4 text-sm font-semibold">£107</td>
+            </tr>
+            <tr class="row-hover border-t border-white/40">
+              <td class="px-6 py-4 text-sm font-medium">free business strategy template</td>
+              <td class="px-6 py-4"><span class="badge-active">Broad</span></td>
+              <td class="px-6 py-4"><span class="badge-paused">Paused</span></td>
+              <td class="px-6 py-4 text-sm">£0.50</td>
+              <td class="px-6 py-4 text-sm" style="color:var(--outline);">840</td>
+              <td class="px-6 py-4 text-sm" style="color:#dc2626;">12</td>
+              <td class="px-6 py-4 text-sm" style="color:#dc2626;">1.4%</td>
+              <td class="px-6 py-4 text-sm font-semibold" style="color:#dc2626;">£6</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE: ASSETS
+    ═══════════════════════════════════════════════ -->
+    <div id="page-assets" class="page">
+      <div class="mb-8">
+        <p class="label-caps mb-1">Asset Library</p>
+        <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Assets & Extensions</h1>
+      </div>
+      <div class="grid grid-cols-2 gap-5">
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <p class="label-caps mb-1">Sitelinks</p>
+              <h3 class="font-semibold">3 Active</h3>
+            </div>
+            <button class="glass-sm px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5" style="color:var(--primary);">
+              <span class="material-symbols-outlined" style="font-size:13px;">add</span> Add
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--surface-low);">
+              <div>
+                <p class="text-sm font-semibold">Strategy Consulting</p>
+                <p class="text-xs" style="color:var(--outline);">rubixness.com/strategy</p>
+              </div>
+              <span class="badge-live">Active</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--surface-low);">
+              <div>
+                <p class="text-sm font-semibold">AI Solutions</p>
+                <p class="text-xs" style="color:var(--outline);">rubixness.com/ai</p>
+              </div>
+              <span class="badge-live">Active</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--surface-low);">
+              <div>
+                <p class="text-sm font-semibold">Free Consultation</p>
+                <p class="text-xs" style="color:var(--outline);">rubixness.com/contact</p>
+              </div>
+              <span class="badge-live">Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <p class="label-caps mb-1">Callouts</p>
+              <h3 class="font-semibold">4 Active</h3>
+            </div>
+            <button class="glass-sm px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5" style="color:var(--primary);">
+              <span class="material-symbols-outlined" style="font-size:13px;">add</span> Add
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="glass-sm px-3 py-1.5 rounded-full text-xs font-semibold">Free Consultation</span>
+            <span class="glass-sm px-3 py-1.5 rounded-full text-xs font-semibold">UK Based</span>
+            <span class="glass-sm px-3 py-1.5 rounded-full text-xs font-semibold">15+ Years Experience</span>
+            <span class="glass-sm px-3 py-1.5 rounded-full text-xs font-semibold">Trusted by 100+ Clients</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE: SETTINGS
+    ═══════════════════════════════════════════════ -->
+    <div id="page-settings" class="page">
+      <div class="mb-8">
+        <p class="label-caps mb-1">System</p>
+        <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Settings</h1>
+        <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Manage your advertising accounts, AI autonomy, and preferences.</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6">
+        <!-- Left nav -->
+        <div class="space-y-1">
+          <button onclick="showSettingsTab('connections')" id="stab-connections" class="stab w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all" style="background:var(--primary-light);color:var(--primary);font-weight:600;">Account Connections</button>
+          <button onclick="showSettingsTab('ai')" id="stab-ai" class="stab w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all" style="color:var(--on-surface-variant);">AI Autonomy Levels</button>
+          <button onclick="showSettingsTab('notifications')" id="stab-notifications" class="stab w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all" style="color:var(--on-surface-variant);">Notification Center</button>
+          <button onclick="showSettingsTab('billing')" id="stab-billing" class="stab w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all" style="color:var(--on-surface-variant);">Billing & Plans</button>
+          <button onclick="showSettingsTab('api')" id="stab-api" class="stab w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all" style="color:var(--on-surface-variant);">Security & API</button>
+        </div>
+
+        <!-- Right content -->
+        <div class="col-span-2 space-y-5">
+
+          <!-- Connections -->
+          <div id="stab-content-connections">
+            <div class="glass rounded-2xl p-6 mb-5">
+              <div class="flex items-center justify-between mb-5">
+                <div>
+                  <h3 class="font-semibold">Connected Accounts</h3>
+                  <p class="text-sm mt-1" style="color:var(--on-surface-variant);">Link your advertising platforms.</p>
+                </div>
+                <button class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white" style="background:var(--primary);">
+                  <span class="material-symbols-outlined" style="font-size:16px;">add</span> Connect New
+                </button>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--surface-low);">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:white;box-shadow:0 1px 6px rgba(0,0,0,.08);">
+                      <span class="text-lg">🎯</span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-sm">Google Ads — Rubixness</p>
+                      <p class="text-xs" style="color:var(--outline);">ID: 400-808-1199 · Connected Apr 24, 2026</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5"><div style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></div><span class="text-xs font-semibold" style="color:#16a34a;">Active</span></div>
+                    <button class="p-1.5 rounded-lg hover:bg-black/5"><span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">open_in_new</span></button>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--surface-low);">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:white;box-shadow:0 1px 6px rgba(0,0,0,.08);">
+                      <span class="text-lg">📘</span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-sm">Meta Ads Manager</p>
+                      <p class="text-xs" style="color:var(--outline);">Not connected</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5"><div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;"></div><span class="text-xs font-semibold" style="color:#f59e0b;">Disconnected</span></div>
+                    <button class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:var(--primary-light);color:var(--primary);">Connect</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="glass rounded-2xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold">Recent Activity</h3>
+                <button class="text-sm font-semibold" style="color:var(--primary);">Export Logs</button>
+              </div>
+              <table class="w-full">
+                <thead><tr style="background:rgba(244,243,248,0.5);">
+                  <th class="label-caps px-3 py-3 text-left">Event</th>
+                  <th class="label-caps px-3 py-3 text-left">Account</th>
+                  <th class="label-caps px-3 py-3 text-left">Status</th>
+                  <th class="label-caps px-3 py-3 text-left">Time</th>
+                </tr></thead>
+                <tbody>
+                  <tr class="border-t border-white/40">
+                    <td class="px-3 py-3 text-sm">Campaign Created</td>
+                    <td class="px-3 py-3 text-sm" style="color:var(--outline);">Google Ads</td>
+                    <td class="px-3 py-3"><span class="badge-live">Success</span></td>
+                    <td class="px-3 py-3 text-xs" style="color:var(--outline);">2 min ago</td>
+                  </tr>
+                  <tr class="border-t border-white/40">
+                    <td class="px-3 py-3 text-sm">API Token Refresh</td>
+                    <td class="px-3 py-3 text-sm" style="color:var(--outline);">Google Ads</td>
+                    <td class="px-3 py-3"><span class="badge-live">Success</span></td>
+                    <td class="px-3 py-3 text-xs" style="color:var(--outline);">1 hr ago</td>
+                  </tr>
+                  <tr class="border-t border-white/40">
+                    <td class="px-3 py-3 text-sm">Budget Updated</td>
+                    <td class="px-3 py-3 text-sm" style="color:var(--outline);">Google Ads</td>
+                    <td class="px-3 py-3"><span class="badge-live">Success</span></td>
+                    <td class="px-3 py-3 text-xs" style="color:var(--outline);">5 hrs ago</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- AI Autonomy -->
+          <div id="stab-content-ai" style="display:none;">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-semibold mb-1">AI Autonomy Level</h3>
+              <p class="text-sm mb-6" style="color:var(--on-surface-variant);">Control how much the AI can act independently on your account.</p>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-medium">Manual</span>
+                <span class="text-sm font-medium" style="color:var(--primary);">Co-Pilot</span>
+                <span class="text-sm font-medium">Autonomous</span>
+              </div>
+              <div class="progress-track mb-6" style="height:8px;">
+                <div class="progress-fill" style="width:50%;"></div>
+              </div>
+              <div class="p-4 rounded-xl" style="background:var(--primary-light);">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">smart_toy</span>
+                  <p class="font-semibold text-sm" style="color:var(--primary);">Co-Pilot Active</p>
+                </div>
+                <p class="text-sm" style="color:var(--on-surface-variant);">Rubixness AI is authorised to suggest bid changes and budget optimisations for your review before applying.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div id="stab-content-notifications" style="display:none;">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-semibold mb-5">Notification Preferences</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-medium text-sm">Performance Alerts</p>
+                    <p class="text-xs mt-0.5" style="color:var(--outline);">Notify when CTR drops below 2%</p>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+                </div>
+                <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-medium text-sm">Budget Thresholds</p>
+                    <p class="text-xs mt-0.5" style="color:var(--outline);">Alert at 80% daily spend reached</p>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+                </div>
+                <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-medium text-sm">Weekly Summary</p>
+                    <p class="text-xs mt-0.5" style="color:var(--outline);">Detailed campaign performance report</p>
+                  </div>
+                  <label class="toggle"><input type="checkbox"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+                </div>
+                <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-medium text-sm">AI Recommendations</p>
+                    <p class="text-xs mt-0.5" style="color:var(--outline);">Notify when new optimisation suggestions are available</p>
+                  </div>
+                  <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Billing -->
+          <div id="stab-content-billing" style="display:none;">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-semibold mb-5">Billing & Plans</h3>
+              <div class="p-5 rounded-xl mb-5" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">
+                <p class="text-xs font-bold text-white/60 uppercase tracking-wider mb-1">Current Plan</p>
+                <p class="text-2xl font-semibold text-white mb-1">Pro · £0/mo</p>
+                <p class="text-sm text-white/70">Internal tool — no subscription required</p>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
+                  <span class="text-sm">Unlimited Google Ads campaigns</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
+                  <span class="text-sm">73 AI tools via MCP server</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
+                  <span class="text-sm">Claude Desktop integration</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
+                  <span class="text-sm">Railway cloud hosting</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- API -->
+          <div id="stab-content-api" style="display:none;">
+            <div class="glass rounded-2xl p-6">
+              <h3 class="font-semibold mb-5">Security & API Keys</h3>
+              <div class="space-y-4">
+                <div>
+                  <label class="label-caps block mb-2">Google Ads Developer Token</label>
+                  <div class="flex gap-2">
+                    <input type="password" value="0fNTNm8jFrZuZxkvAkoaTQ" class="input-field flex-1" readonly>
+                    <button class="glass-sm px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1" style="color:var(--on-surface-variant);">
+                      <span class="material-symbols-outlined" style="font-size:14px;">visibility</span>
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="label-caps block mb-2">Customer ID (Advertiser Account)</label>
+                  <input value="400-808-1199" class="input-field" readonly>
+                </div>
+                <div>
+                  <label class="label-caps block mb-2">MCP Server URL</label>
+                  <input value="https://my-mcp-server-production-957a.up.railway.app/mcp" class="input-field" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE: PROFILE
+    ═══════════════════════════════════════════════ -->
+    <div id="page-profile" class="page">
+      <div class="mb-8">
+        <p class="label-caps mb-1">Account</p>
+        <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Profile Settings</h1>
+        <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Manage your personal information and preferences.</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6">
+
+        <!-- Profile card -->
+        <div class="glass rounded-2xl p-6 flex flex-col items-center text-center">
+          <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold text-white mb-4" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">A</div>
+          <h3 class="font-semibold text-lg">Asif Rahim</h3>
+          <p class="text-sm mt-0.5" style="color:var(--outline);">Sales & Marketing Manager</p>
+          <p class="text-xs mt-0.5" style="color:var(--outline);">Rubixness · Kerala, India</p>
+          <div class="mt-4 w-full space-y-2">
+            <div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="background:var(--surface-low);">
+              <span class="material-symbols-outlined" style="font-size:15px;color:var(--outline);">mail</span>
+              <span class="text-xs">info@rubixness.com</span>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="background:var(--surface-low);">
+              <span class="material-symbols-outlined" style="font-size:15px;color:var(--outline);">language</span>
+              <span class="text-xs">rubixness.com</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit form -->
+        <div class="col-span-2 space-y-5">
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-semibold mb-5">Personal Information</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="label-caps block mb-2">First Name</label>
+                <input value="Asif" class="input-field">
+              </div>
+              <div>
+                <label class="label-caps block mb-2">Last Name</label>
+                <input value="Rahim" class="input-field">
+              </div>
+              <div>
+                <label class="label-caps block mb-2">Email</label>
+                <input value="info@rubixness.com" class="input-field">
+              </div>
+              <div>
+                <label class="label-caps block mb-2">Phone</label>
+                <input value="+44 79510 14610" class="input-field">
+              </div>
+              <div>
+                <label class="label-caps block mb-2">Company</label>
+                <input value="Rubixness" class="input-field">
+              </div>
+              <div>
+                <label class="label-caps block mb-2">Role</label>
+                <input value="Sales & Marketing Manager" class="input-field">
+              </div>
+              <div class="col-span-2">
+                <label class="label-caps block mb-2">Location</label>
+                <input value="Kerala, India" class="input-field">
+              </div>
+            </div>
+            <button class="mt-5 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90" style="background:var(--primary);">Save Changes</button>
+          </div>
+
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-semibold mb-5">Preferences</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-sm">Dark Mode</p>
+                  <p class="text-xs mt-0.5" style="color:var(--outline);">Switch between light and dark theme</p>
+                </div>
+                <label class="toggle"><input type="checkbox" id="darkToggleProfile" onchange="toggleDark(this.checked)"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-sm">Currency</p>
+                  <p class="text-xs mt-0.5" style="color:var(--outline);">Display all monetary values in</p>
+                </div>
+                <select class="input-field" style="width:auto;padding:6px 10px;">
+                  <option>GBP (£)</option>
+                  <option>USD ($)</option>
+                  <option>EUR (€)</option>
+                </select>
+              </div>
+              <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-sm">Timezone</p>
+                  <p class="text-xs mt-0.5" style="color:var(--outline);">Used for reporting and scheduling</p>
+                </div>
+                <select class="input-field" style="width:auto;padding:6px 10px;">
+                  <option>IST (GMT+5:30)</option>
+                  <option>GMT (UTC+0)</option>
+                  <option>EST (UTC-5)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-semibold mb-1" style="color:var(--error);">Danger Zone</h3>
+            <p class="text-sm mb-4" style="color:var(--on-surface-variant);">Irreversible and destructive actions.</p>
+            <div class="flex gap-3">
+              <button class="px-4 py-2 rounded-xl text-sm font-semibold" style="background:#fff1f2;color:var(--error);">Disconnect Google Ads</button>
+              <button class="px-4 py-2 rounded-xl text-sm font-semibold" style="background:#fff1f2;color:var(--error);">Delete All Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── NAVIGATION ──────────────────────────────────────
+function showPage(name) {
+  // Hide all pages first
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('nav-active');
+    n.style.color = '';
+  });
+  // Show selected page with correct display type
+  const page = document.getElementById('page-' + name);
+  if (page) {
+    page.classList.add('active');
+    page.style.display = name === 'ai' ? 'flex' : 'block';
+  }
+  const nav = document.getElementById('nav-' + name);
+  if (nav) {
+    nav.classList.add('nav-active');
+    nav.style.color = '';
+  }
+  // init charts if needed
+  if (name === 'overview' && !window.chartsInitialized) initCharts();
+  if (name === 'performance' && !window.perfChartsInit) initPerfCharts();
+}
+
+// ── SETTINGS TABS ──────────────────────────────────
+function showSettingsTab(tab) {
+  ['connections','ai','notifications','billing','api'].forEach(t => {
+    const content = document.getElementById('stab-content-' + t);
+    const btn = document.getElementById('stab-' + t);
+    if (content) content.style.display = t === tab ? 'block' : 'none';
+    if (btn) {
+      if (t === tab) {
+        btn.style.background = 'var(--primary-light)';
+        btn.style.color = 'var(--primary)';
+        btn.style.fontWeight = '600';
+      } else {
+        btn.style.background = '';
+        btn.style.color = 'var(--on-surface-variant)';
+        btn.style.fontWeight = '';
+      }
+    }
+  });
+}
+
+// ── SEGMENTED CONTROL ──────────────────────────────
+function setTime(el, val) {
+  el.closest('.seg-ctrl').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── CHARTS ──────────────────────────────────────────
+function initCharts() {
+  window.chartsInitialized = true;
+  const labels = [], spend = [], conv = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('en-GB', {day:'numeric',month:'short'}));
+    spend.push(+(18 + Math.random() * 14 + (i < 10 ? 6 : 0)).toFixed(1));
+    conv.push(+(0.4 + Math.random() * 1.8 + (i < 10 ? .5 : 0)).toFixed(1));
+  }
+  const gridColor = 'rgba(0,0,0,0.04)';
+  const tickColor = '#717786';
+  const tip = { backgroundColor: 'white', borderColor: 'rgba(0,0,0,0.08)', borderWidth: 1, titleColor: '#1a1b1f', bodyColor: '#414755', titleFont: {family:'Inter',weight:'600',size:11}, bodyFont: {family:'Inter',size:11}, padding: 10, cornerRadius: 8 };
+  const scl = { ticks: { color: tickColor, font: {family:'Inter',size:10} }, grid: { color: gridColor }, border: { color: 'transparent' } };
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Spend (£)', data: spend, borderColor: '#0058bc', backgroundColor: 'rgba(0,88,188,.06)', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, tension: .45, yAxisID: 'y' },
+      { label: 'Conversions', data: conv, borderColor: '#8a2bb9', backgroundColor: 'rgba(138,43,185,.05)', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, tension: .45, yAxisID: 'y1' }
+    ]},
+    options: { responsive: true, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: tickColor, font: {family:'Inter',size:11}, boxWidth:9, boxHeight:9, borderRadius:3 }}, tooltip: tip },
+      scales: { x: {...scl, ticks: {...scl.ticks, maxTicksLimit: 7}}, y: {...scl, position:'left', ticks:{...scl.ticks, callback:v=>'£'+v}}, y1: {...scl, position:'right', grid:{drawOnChartArea:false}} }
+    }
+  });
+
+  new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: { labels: ['Strategy', 'AI Solutions', 'Brand Awareness'], datasets: [{ data: [349, 287, 206], backgroundColor: ['#0058bc','#4c4aca','#8a2bb9'], borderColor: '#faf9fe', borderWidth: 3, hoverOffset: 6 }] },
+    options: { responsive: true, cutout: '70%',
+      plugins: { legend: { position: 'bottom', labels: { color: tickColor, font: {family:'Inter',size:11}, boxWidth:9, boxHeight:9, borderRadius:3, padding:12 }}, tooltip: {...tip, callbacks:{ label: ctx => ' £'+ctx.parsed+' ('+Math.round(ctx.parsed/842*100)+'%)' }} }
+    }
+  });
+}
+
+function initPerfCharts() {
+  window.perfChartsInit = true;
+  const labels = [], d1 = [], d2 = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('en-GB', {day:'numeric',month:'short'}));
+    d1.push(+(18 + Math.random() * 12).toFixed(1));
+    d2.push(+(0.5 + Math.random() * 2).toFixed(1));
+  }
+  const sc = { ticks: { color: '#717786', font:{family:'Inter',size:10} }, grid: { color:'rgba(0,0,0,0.04)' }, border:{ color:'transparent' } };
+  const tp = { backgroundColor:'white',borderColor:'rgba(0,0,0,0.08)',borderWidth:1,titleColor:'#1a1b1f',bodyColor:'#414755',titleFont:{family:'Inter',weight:'600',size:11},bodyFont:{family:'Inter',size:11},padding:10,cornerRadius:8 };
+  new Chart(document.getElementById('spendChart'), { type:'bar', data:{ labels, datasets:[{label:'Daily Spend (£)',data:d1,backgroundColor:'rgba(0,88,188,.15)',borderColor:'#0058bc',borderWidth:1.5,borderRadius:4}]}, options:{responsive:true,plugins:{legend:{labels:{color:'#717786',font:{family:'Inter',size:11}}},tooltip:tp},scales:{x:{...sc,ticks:{...sc.ticks,maxTicksLimit:8}},y:{...sc,ticks:{...sc.ticks,callback:v=>'£'+v}}}}});
+  new Chart(document.getElementById('convChart'), { type:'line', data:{ labels, datasets:[{label:'Conversions',data:d2,borderColor:'#8a2bb9',backgroundColor:'rgba(138,43,185,.08)',borderWidth:2,pointRadius:0,fill:true,tension:.45}]}, options:{responsive:true,plugins:{legend:{labels:{color:'#717786',font:{family:'Inter',size:11}}},tooltip:tp},scales:{x:{...sc,ticks:{...sc.ticks,maxTicksLimit:8}},y:{...sc}}}});
+}
+
+// ── MCP CHAT INTEGRATION ─────────────────────────────
+const MCP_SERVER_URL = 'https://my-mcp-server-production-957a.up.railway.app/mcp';
+let conversationHistory = [];
+let isLoading = false;
+
+function quickCmd(cmd) {
+  document.getElementById('chat-input').value = cmd;
+  sendChat();
+}
+
+function addMessage(role, text) {
+  const messages = document.getElementById('chat-messages');
+  const time = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+  if (role === 'user') {
+    messages.innerHTML += `
+      <div class="flex justify-end">
+        <div class="px-4 py-3 rounded-2xl rounded-tr-sm max-w-sm text-white text-sm leading-relaxed" style="background:var(--primary);">
+          <p>${escHtml(text)}</p>
+          <p class="text-xs mt-1 opacity-60">You · ${time}</p>
+        </div>
+      </div>`;
+  } else {
+    const formatted = formatAIResponse(text);
+    messages.innerHTML += `
+      <div class="flex gap-3">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">
+          <span class="material-symbols-outlined text-white" style="font-size:13px;">smart_toy</span>
+        </div>
+        <div class="glass-sm rounded-2xl rounded-tl-sm px-4 py-3" style="max-width:85%;">
+          <div class="text-sm leading-relaxed ai-response">${formatted}</div>
+          <p class="text-xs mt-1.5" style="color:var(--outline);">RubixAds AI · ${time}</p>
+        </div>
+      </div>`;
+  }
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addThinking() {
+  const messages = document.getElementById('chat-messages');
+  messages.innerHTML += `
+    <div class="flex gap-3" id="thinking-indicator">
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">
+        <span class="material-symbols-outlined text-white" style="font-size:13px;">smart_toy</span>
+      </div>
+      <div class="glass-sm rounded-2xl rounded-tl-sm px-4 py-3">
+        <div class="flex items-center gap-2">
+          <div style="display:flex;gap:4px;align-items:center;">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--primary);animation:bounce 1s infinite 0s;"></div>
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--primary);animation:bounce 1s infinite 0.2s;"></div>
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--primary);animation:bounce 1s infinite 0.4s;"></div>
+          </div>
+          <span class="text-xs" style="color:var(--outline);">Connecting to MCP server...</span>
+        </div>
+      </div>
+    </div>`;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function removeThinking() {
+  const el = document.getElementById('thinking-indicator');
+  if (el) el.remove();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatAIResponse(text) {
+  return text
+    .replace(/\n\n/g, '</p><p class="mt-2">')
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code style="background:rgba(0,88,188,0.08);padding:1px 5px;border-radius:4px;font-size:12px;">$1</code>')
+    .replace(/^- (.+)/gm, '<div style="display:flex;gap:6px;margin-top:3px;"><span style="color:var(--primary);flex-shrink:0;">•</span><span>$1</span></div>')
+    .replace(/^(✅|❌|⚠️|📊|💷|🎯|📋|🔑|💸|📈) (.+)/gm, '<div style="display:flex;gap:6px;margin-top:4px;"><span>$1</span><span>$2</span></div>');
+}
+
+async function sendChat() {
+  if (isLoading) return;
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  isLoading = true;
+
+  const sendBtn = document.getElementById('send-btn');
+  const sendIcon = document.getElementById('send-icon');
+  sendBtn.style.opacity = '0.6';
+  sendIcon.textContent = 'hourglass_empty';
+
+  addMessage('user', msg);
+  conversationHistory.push({ role: 'user', content: msg });
+  addThinking();
+
+  try {
+    const systemPrompt = `You are the RubixAds AI, a specialist Google Ads agent for Asif Rahim at Rubixness (UK consulting firm). You have full access to the Rubixness Google Ads account (ID: 400-808-1199) via a set of MCP tools.
+
+Your available tools include: list_campaigns, list_tools, get_campaign_performance, create_campaign, confirm_create_campaign, pause_campaign, confirm_pause_campaign, enable_campaign, confirm_enable_campaign, rename_campaign, confirm_rename_campaign, delete_campaign, confirm_delete_campaign, update_campaign_budget, confirm_update_campaign_budget, list_ad_groups, create_ad_group, update_ad_group, pause_ad_group, enable_ad_group, delete_ad_group, list_ads, create_ad, update_ad, pause_ad, enable_ad, remove_ad, list_keywords, add_keywords, pause_keyword, enable_keyword, update_keyword_bid, remove_keyword, list_negative_keywords, add_sitelink_asset, add_callout_asset, add_call_asset, list_assets, remove_asset, add_structured_snippet_asset, add_lead_form_asset, add_price_asset, add_promotion_asset, get_keyword_performance, get_ad_group_performance, get_ad_performance, get_search_terms_report, get_quality_scores, get_auction_insights, get_impression_share, get_recommendations, apply_recommendation, dismiss_recommendation, get_wasted_spend_report, list_conversion_actions, create_conversion_action, get_conversion_tag, duplicate_campaign, clone_ad, remove_negative_keyword, update_ad_schedule, list_accounts, switch_account, get_account_health_score, add_price_asset, add_promotion_asset, get_landing_page_report, forecast_budget, create_remarketing_audience, add_audience_targeting, get_account_summary, list_campaign_settings, update_device_bid_adjustment, update_location_targeting, add_ad_schedule.
+
+Always use tools to fetch real data — never make up numbers. For destructive actions (delete, pause), show a confirmation summary before calling confirm_* tools. Format responses clearly with emojis, bullet points and bold text for readability. Currency is always GBP (£).`;
+
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: conversationHistory,
+        mcp_servers: [{
+          type: 'url',
+          url: MCP_SERVER_URL,
+          name: 'rubixness-ads'
+        }]
+      })
+    });
+
+    const data = await response.json();
+    removeThinking();
+
+    if (data.error) {
+      addMessage('ai', `⚠️ API error: ${data.error.message || 'Unknown error'}. Make sure the dashboard is running through Claude artifacts.`);
+    } else {
+      // Extract text from response content blocks
+      const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n\n');
+      const reply = textBlocks || 'I processed your request but received no text response.';
+      addMessage('ai', reply);
+      conversationHistory.push({ role: 'assistant', content: data.content || reply });
+    }
+
+  } catch (err) {
+    removeThinking();
+    addMessage('ai', `⚠️ Connection error: ${err.message}. Check that your MCP server is running on Railway.`);
+  }
+
+  isLoading = false;
+  sendBtn.style.opacity = '1';
+  sendIcon.textContent = 'send';
+}
+
+// ── DARK MODE ────────────────────────────────────────
+function toggleDark(val) {
+  const isDark = val !== undefined ? val : !document.body.classList.contains('dark');
+  document.body.classList.toggle('dark', isDark);
+  localStorage.setItem('darkMode', isDark);
+  const icon = document.getElementById('themeBtnIcon');
+  if (icon) icon.textContent = isDark ? 'dark_mode' : 'light_mode';
+  const profileToggle = document.getElementById('darkToggleProfile');
+  if (profileToggle) profileToggle.checked = isDark;
+  // Update logo area background
+  document.querySelectorAll('.logo-bg').forEach(el => {
+    el.style.background = isDark ? '#161b22' : 'white';
+  });
+  // Rebuild charts with correct theme colours
+  window.chartsInitialized = false;
+  window.perfChartsInit = false;
+  const activeOverview = document.getElementById('page-overview');
+  if (activeOverview && activeOverview.classList.contains('active')) {
+    initCharts();
+  }
+}
+
+// ── CLEAR CHAT ──────────────────────────────────────
+function clearChat() {
+  conversationHistory = [];
+  localStorage.removeItem('chatHistory');
+  const messages = document.getElementById('chat-messages');
+  messages.innerHTML = `<div class="flex gap-3" id="welcome-msg">
+    <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">
+      <span class="material-symbols-outlined text-white" style="font-size:13px;">smart_toy</span>
+    </div>
+    <div class="glass-sm rounded-2xl rounded-tl-sm px-4 py-3 max-w-sm">
+      <p class="text-sm leading-relaxed">Chat cleared. I\'m ready — what would you like to do with your Google Ads?</p>
+      <p class="text-xs mt-1.5" style="color:var(--outline);">RubixAds AI · ready</p>
+    </div>
+  </div>`;
+}
+
+// ── INIT ─────────────────────────────────────────────
+showPage('overview');
+
+// Restore dark mode preference
+if (localStorage.getItem('darkMode') === 'true') {
+  toggleDark(true);
+}
+
+// Pre-populate chat with conversation history from localStorage
+(function() {
+  const saved = localStorage.getItem('chatHistory');
+  if (saved) {
+    try {
+      const hist = JSON.parse(saved);
+      conversationHistory = hist;
+      if (hist.length > 0) {
+        document.getElementById('welcome-msg').remove();
+        hist.forEach(m => {
+          if (m.role === 'user') addMessage('user', typeof m.content === 'string' ? m.content : m.content[0]?.text || '');
+          else {
+            const text = Array.isArray(m.content) ? m.content.filter(b=>b.type==='text').map(b=>b.text).join('\n') : m.content;
+            if (text) addMessage('ai', text);
+          }
+        });
+      }
+    } catch(e) {}
+  }
+})();
+
+// Save chat history on unload
+window.addEventListener('beforeunload', () => {
+  if (conversationHistory.length > 0) {
+    localStorage.setItem('chatHistory', JSON.stringify(conversationHistory.slice(-20)));
+  }
+});
+</script>
+</body>
+</html>
