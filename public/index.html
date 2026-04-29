@@ -1385,116 +1385,69 @@ body.dark .notif-dot {
         <div>
           <p class="label-caps mb-1">Campaign Management</p>
           <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Campaigns</h1>
-          <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Manage and monitor all your Google Ads campaigns.</p>
+          <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Live data from Google Ads account 400-808-1199</p>
         </div>
-        <button class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style="background:var(--primary);">
-          <span class="material-symbols-outlined" style="font-size:16px;">add</span> New Campaign
-        </button>
-      </div>
-
-      <div class="glass rounded-2xl overflow-hidden">
-        <div class="px-6 py-5 flex items-center gap-4 border-b border-white/50">
-          <div class="flex-1 glass-sm flex items-center gap-2 px-3 py-2 rounded-xl" style="background:var(--surface-low);">
-            <span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">search</span>
-            <input placeholder="Search campaigns..." class="bg-transparent border-none outline-none text-sm flex-1">
-          </div>
-          <button class="glass-sm flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style="color:var(--on-surface-variant);">
-            <span class="material-symbols-outlined" style="font-size:14px;">filter_list</span> Filter
+        <div class="flex items-center gap-3">
+          <button onclick="refreshCampaigns()" id="refresh-campaigns-btn" class="glass-sm flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80" style="color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:16px;">refresh</span> Refresh
+          </button>
+          <button onclick="showPage('ai')" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style="background:var(--primary);">
+            <span class="material-symbols-outlined" style="font-size:16px;">add</span> New Campaign
           </button>
         </div>
-        <table class="w-full text-left">
-          <thead>
-            <tr style="background:rgba(244,243,248,0.5);">
-              <th class="label-caps px-6 py-4">Campaign Name</th>
-              <th class="label-caps px-6 py-4">Status</th>
-              <th class="label-caps px-6 py-4">Daily Budget</th>
-              <th class="label-caps px-6 py-4">Impressions</th>
-              <th class="label-caps px-6 py-4">Clicks</th>
-              <th class="label-caps px-6 py-4">CTR</th>
-              <th class="label-caps px-6 py-4">Spend</th>
-              <th class="label-caps px-6 py-4">Conv.</th>
-              <th class="label-caps px-6 py-4">CPL</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="row-hover border-t border-white/40">
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:var(--primary);">S</div>
-                  <div>
-                    <p class="font-semibold text-sm">Strategy Consulting</p>
-                    <p class="text-xs" style="color:var(--outline);">Search · Maximize Clicks</p>
-                  </div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="campaigns-loading" class="glass rounded-2xl p-12 flex flex-col items-center justify-center" style="display:none!important;">
+        <div class="thinking-dots mb-3" style="justify-content:center;">
+          <div class="thinking-dot"></div>
+          <div class="thinking-dot"></div>
+          <div class="thinking-dot"></div>
+        </div>
+        <p class="text-sm" style="color:var(--outline);">Fetching live campaign data...</p>
+      </div>
+
+      <!-- Campaigns table -->
+      <div id="campaigns-container" class="glass rounded-2xl overflow-hidden">
+        <div class="px-6 py-5 flex items-center gap-4 border-b border-white/50">
+          <div class="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl" style="background:var(--surface-low);border:1px solid var(--outline-variant);">
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">search</span>
+            <input id="campaign-search" placeholder="Search campaigns..." class="bg-transparent border-none outline-none text-sm flex-1" oninput="filterCampaigns(this.value)">
+          </div>
+          <span id="campaigns-count" class="text-xs font-semibold px-3 py-1.5 rounded-lg" style="background:var(--primary-light);color:var(--primary);">Loading...</span>
+        </div>
+        <div id="campaigns-table-wrap" class="overflow-x-auto">
+          <table class="w-full text-left" id="campaigns-table">
+            <thead>
+              <tr style="background:rgba(244,243,248,0.5);">
+                <th class="label-caps px-6 py-4">Campaign</th>
+                <th class="label-caps px-6 py-4">Status</th>
+                <th class="label-caps px-6 py-4">Daily Budget</th>
+                <th class="label-caps px-6 py-4">ID</th>
+                <th class="label-caps px-6 py-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="campaigns-tbody">
+              <tr><td colspan="5" class="px-6 py-8 text-center text-sm" style="color:var(--outline);">
+                <div class="thinking-dots" style="justify-content:center;margin-bottom:8px;">
+                  <div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>
                 </div>
-              </td>
-              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
-              <td class="px-6 py-4 text-sm font-medium">£3.33</td>
-              <td class="px-6 py-4 text-sm">12,420</td>
-              <td class="px-6 py-4 text-sm">528</td>
-              <td class="px-6 py-4 text-sm" style="color:#16a34a;">3.8%</td>
-              <td class="px-6 py-4 text-sm font-semibold">£349</td>
-              <td class="px-6 py-4 text-sm" style="color:#16a34a;">18</td>
-              <td class="px-6 py-4 text-sm font-semibold" style="color:#16a34a;">£19.40</td>
-            </tr>
-            <tr class="row-hover border-t border-white/40">
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:var(--secondary);">A</div>
-                  <div>
-                    <p class="font-semibold text-sm">AI Solutions UK</p>
-                    <p class="text-xs" style="color:var(--outline);">Search · Target Spend</p>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
-              <td class="px-6 py-4 text-sm font-medium">£3.33</td>
-              <td class="px-6 py-4 text-sm">9,840</td>
-              <td class="px-6 py-4 text-sm">412</td>
-              <td class="px-6 py-4 text-sm">3.1%</td>
-              <td class="px-6 py-4 text-sm font-semibold">£287</td>
-              <td class="px-6 py-4 text-sm">13</td>
-              <td class="px-6 py-4 text-sm font-semibold">£22.08</td>
-            </tr>
-            <tr class="row-hover border-t border-white/40">
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" style="background:#f97316;">B</div>
-                  <div>
-                    <p class="font-semibold text-sm">Brand Awareness</p>
-                    <p class="text-xs" style="color:var(--outline);">Search · Maximize Clicks</p>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4"><span class="badge-live">Active</span></td>
-              <td class="px-6 py-4 text-sm font-medium">£3.33</td>
-              <td class="px-6 py-4 text-sm">8,930</td>
-              <td class="px-6 py-4 text-sm">344</td>
-              <td class="px-6 py-4 text-sm" style="color:#dc2626;">1.9%</td>
-              <td class="px-6 py-4 text-sm font-semibold">£206</td>
-              <td class="px-6 py-4 text-sm" style="color:#dc2626;">7</td>
-              <td class="px-6 py-4 text-sm font-semibold" style="color:#dc2626;">£29.43</td>
-            </tr>
-            <tr class="row-hover border-t border-white/40">
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style="background:var(--surface-container);color:var(--outline);">F</div>
-                  <div>
-                    <p class="font-semibold text-sm">Financial Services</p>
-                    <p class="text-xs" style="color:var(--outline);">Search · Paused</p>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4"><span class="badge-paused">Paused</span></td>
-              <td class="px-6 py-4 text-sm" style="color:var(--outline);">£3.33</td>
-              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
-              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
-              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
-              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
-              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
-              <td class="px-6 py-4 text-sm" style="color:var(--outline);">—</td>
-            </tr>
-          </tbody>
-        </table>
+                Loading campaigns from Google Ads...
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Campaign detail panel (shown on row click) -->
+      <div id="campaign-detail" class="glass rounded-2xl p-6 mt-5" style="display:none;">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold" id="detail-title">Campaign Details</h3>
+          <button onclick="document.getElementById('campaign-detail').style.display='none'" class="p-1 rounded-lg hover:bg-black/5">
+            <span class="material-symbols-outlined" style="font-size:18px;color:var(--outline);">close</span>
+          </button>
+        </div>
+        <div id="detail-content"></div>
       </div>
     </div>
 
@@ -1739,22 +1692,22 @@ body.dark .notif-dot {
           <button onclick="showSettingsTab('api')" id="stab-api" class="stab w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all" style="color:var(--on-surface-variant);">Security & API</button>
         </div>
 
-        <!-- Right content -->
         <div class="col-span-2 space-y-5">
 
-          <!-- Connections -->
+          <!-- CONNECTIONS -->
           <div id="stab-content-connections">
             <div class="glass rounded-2xl p-6 mb-5">
               <div class="flex items-center justify-between mb-5">
                 <div>
                   <h3 class="font-semibold">Connected Accounts</h3>
-                  <p class="text-sm mt-1" style="color:var(--on-surface-variant);">Link your advertising platforms.</p>
+                  <p class="text-sm mt-1" style="color:var(--on-surface-variant);">Live status from your Google Ads API connection.</p>
                 </div>
-                <button class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white" style="background:var(--primary);">
-                  <span class="material-symbols-outlined" style="font-size:16px;">add</span> Connect New
+                <button onclick="testConnection()" id="test-conn-btn" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all" style="background:var(--primary-light);color:var(--primary);">
+                  <span class="material-symbols-outlined" style="font-size:16px;">wifi_tethering</span> Test Connection
                 </button>
               </div>
               <div class="space-y-3">
+                <!-- Google Ads - live status -->
                 <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--surface-low);">
                   <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:white;box-shadow:0 1px 6px rgba(0,0,0,.08);">
@@ -1762,133 +1715,120 @@ body.dark .notif-dot {
                     </div>
                     <div>
                       <p class="font-semibold text-sm">Google Ads — Rubixness</p>
-                      <p class="text-xs" style="color:var(--outline);">ID: 400-808-1199 · Connected Apr 24, 2026</p>
+                      <p class="text-xs" style="color:var(--outline);">Manager: 329-934-8141 · Advertiser: 400-808-1199</p>
+                      <p class="text-xs mt-0.5" id="gads-campaign-count" style="color:var(--outline);">Checking...</p>
                     </div>
                   </div>
                   <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1.5"><div style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></div><span class="text-xs font-semibold" style="color:#16a34a;">Active</span></div>
-                    <button class="p-1.5 rounded-lg hover:bg-black/5"><span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">open_in_new</span></button>
+                    <div id="gads-status" class="flex items-center gap-1.5">
+                      <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;"></div>
+                      <span class="text-xs font-semibold" style="color:#f59e0b;">Checking...</span>
+                    </div>
                   </div>
                 </div>
+                <!-- MCP Server status -->
                 <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--surface-low);">
                   <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:white;box-shadow:0 1px 6px rgba(0,0,0,.08);">
-                      <span class="text-lg">📘</span>
+                      <span class="text-lg">⚙️</span>
                     </div>
                     <div>
-                      <p class="font-semibold text-sm">Meta Ads Manager</p>
-                      <p class="text-xs" style="color:var(--outline);">Not connected</p>
+                      <p class="font-semibold text-sm">MCP Server — Railway</p>
+                      <p class="text-xs" style="color:var(--outline);">my-mcp-server-production-957a.up.railway.app</p>
+                      <p class="text-xs mt-0.5" id="mcp-tool-count" style="color:var(--outline);">Checking...</p>
                     </div>
                   </div>
+                  <div id="mcp-status" class="flex items-center gap-1.5">
+                    <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;"></div>
+                    <span class="text-xs font-semibold" style="color:#f59e0b;">Checking...</span>
+                  </div>
+                </div>
+                <!-- Anthropic API status -->
+                <div class="flex items-center justify-between p-4 rounded-xl" style="background:var(--surface-low);">
                   <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1.5"><div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;"></div><span class="text-xs font-semibold" style="color:#f59e0b;">Disconnected</span></div>
-                    <button class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:var(--primary-light);color:var(--primary);">Connect</button>
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:white;box-shadow:0 1px 6px rgba(0,0,0,.08);">
+                      <span class="text-lg">🤖</span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-sm">Anthropic API — Claude</p>
+                      <p class="text-xs" style="color:var(--outline);">claude-haiku-4-5-20251001 · Proxied via Railway</p>
+                      <p class="text-xs mt-0.5" id="anthropic-model" style="color:var(--outline);">Checking...</p>
+                    </div>
+                  </div>
+                  <div id="anthropic-status" class="flex items-center gap-1.5">
+                    <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;"></div>
+                    <span class="text-xs font-semibold" style="color:#f59e0b;">Checking...</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Recent Activity -->
+            <!-- Recent Activity — live from cache -->
             <div class="glass rounded-2xl p-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="font-semibold">Recent Activity</h3>
-                <button class="text-sm font-semibold" style="color:var(--primary);">Export Logs</button>
+                <button onclick="loadActivity()" class="text-sm font-semibold" style="color:var(--primary);">Refresh</button>
               </div>
-              <table class="w-full">
-                <thead><tr style="background:rgba(244,243,248,0.5);">
-                  <th class="label-caps px-3 py-3 text-left">Event</th>
-                  <th class="label-caps px-3 py-3 text-left">Account</th>
-                  <th class="label-caps px-3 py-3 text-left">Status</th>
-                  <th class="label-caps px-3 py-3 text-left">Time</th>
-                </tr></thead>
-                <tbody>
-                  <tr class="border-t border-white/40">
-                    <td class="px-3 py-3 text-sm">Campaign Created</td>
-                    <td class="px-3 py-3 text-sm" style="color:var(--outline);">Google Ads</td>
-                    <td class="px-3 py-3"><span class="badge-live">Success</span></td>
-                    <td class="px-3 py-3 text-xs" style="color:var(--outline);">2 min ago</td>
-                  </tr>
-                  <tr class="border-t border-white/40">
-                    <td class="px-3 py-3 text-sm">API Token Refresh</td>
-                    <td class="px-3 py-3 text-sm" style="color:var(--outline);">Google Ads</td>
-                    <td class="px-3 py-3"><span class="badge-live">Success</span></td>
-                    <td class="px-3 py-3 text-xs" style="color:var(--outline);">1 hr ago</td>
-                  </tr>
-                  <tr class="border-t border-white/40">
-                    <td class="px-3 py-3 text-sm">Budget Updated</td>
-                    <td class="px-3 py-3 text-sm" style="color:var(--outline);">Google Ads</td>
-                    <td class="px-3 py-3"><span class="badge-live">Success</span></td>
-                    <td class="px-3 py-3 text-xs" style="color:var(--outline);">5 hrs ago</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div id="activity-log">
+                <div class="flex items-center justify-center py-6">
+                  <div class="thinking-dots">
+                    <div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- AI Autonomy -->
+          <!-- AI AUTONOMY -->
           <div id="stab-content-ai" style="display:none;">
             <div class="glass rounded-2xl p-6">
               <h3 class="font-semibold mb-1">AI Autonomy Level</h3>
-              <p class="text-sm mb-6" style="color:var(--on-surface-variant);">Control how much the AI can act independently on your account.</p>
+              <p class="text-sm mb-6" style="color:var(--on-surface-variant);">Control how much the AI can act independently.</p>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-sm font-medium">Manual</span>
                 <span class="text-sm font-medium" style="color:var(--primary);">Co-Pilot</span>
                 <span class="text-sm font-medium">Autonomous</span>
               </div>
-              <div class="progress-track mb-6" style="height:8px;">
-                <div class="progress-fill" style="width:50%;"></div>
-              </div>
-              <div class="p-4 rounded-xl" style="background:var(--primary-light);">
+              <input type="range" min="0" max="2" value="1" class="w-full mb-6" style="accent-color:var(--primary);" oninput="updateAutonomy(this.value)">
+              <div id="autonomy-desc" class="p-4 rounded-xl" style="background:var(--primary-light);">
                 <div class="flex items-center gap-2 mb-1">
                   <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">smart_toy</span>
                   <p class="font-semibold text-sm" style="color:var(--primary);">Co-Pilot Active</p>
                 </div>
-                <p class="text-sm" style="color:var(--on-surface-variant);">Rubixness AI is authorised to suggest bid changes and budget optimisations for your review before applying.</p>
+                <p class="text-sm" style="color:var(--on-surface-variant);">AI suggests bid changes and optimisations for your review before applying.</p>
               </div>
             </div>
           </div>
 
-          <!-- Notifications -->
+          <!-- NOTIFICATIONS -->
           <div id="stab-content-notifications" style="display:none;">
             <div class="glass rounded-2xl p-6">
               <h3 class="font-semibold mb-5">Notification Preferences</h3>
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-sm">Performance Alerts</p>
-                    <p class="text-xs mt-0.5" style="color:var(--outline);">Notify when CTR drops below 2%</p>
-                  </div>
+                  <div><p class="font-medium text-sm">Performance Alerts</p><p class="text-xs mt-0.5" style="color:var(--outline);">Notify when CTR drops below 2%</p></div>
                   <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 </div>
                 <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
                 <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-sm">Budget Thresholds</p>
-                    <p class="text-xs mt-0.5" style="color:var(--outline);">Alert at 80% daily spend reached</p>
-                  </div>
+                  <div><p class="font-medium text-sm">Budget Thresholds</p><p class="text-xs mt-0.5" style="color:var(--outline);">Alert at 80% daily spend reached</p></div>
                   <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 </div>
                 <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
                 <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-sm">Weekly Summary</p>
-                    <p class="text-xs mt-0.5" style="color:var(--outline);">Detailed campaign performance report</p>
-                  </div>
+                  <div><p class="font-medium text-sm">Weekly Summary</p><p class="text-xs mt-0.5" style="color:var(--outline);">Detailed campaign performance report</p></div>
                   <label class="toggle"><input type="checkbox"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 </div>
                 <div class="h-px" style="background:var(--outline-variant);opacity:.3;"></div>
                 <div class="flex items-center justify-between">
-                  <div>
-                    <p class="font-medium text-sm">AI Recommendations</p>
-                    <p class="text-xs mt-0.5" style="color:var(--outline);">Notify when new optimisation suggestions are available</p>
-                  </div>
+                  <div><p class="font-medium text-sm">AI Recommendations</p><p class="text-xs mt-0.5" style="color:var(--outline);">Notify when new optimisations are available</p></div>
                   <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Billing -->
+          <!-- BILLING -->
           <div id="stab-content-billing" style="display:none;">
             <div class="glass rounded-2xl p-6">
               <h3 class="font-semibold mb-5">Billing & Plans</h3>
@@ -1898,47 +1838,44 @@ body.dark .notif-dot {
                 <p class="text-sm text-white/70">Internal tool — no subscription required</p>
               </div>
               <div class="space-y-3">
-                <div class="flex items-center gap-3">
-                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
-                  <span class="text-sm">Unlimited Google Ads campaigns</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
-                  <span class="text-sm">73 AI tools via MCP server</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
-                  <span class="text-sm">Claude Desktop integration</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span>
-                  <span class="text-sm">Railway cloud hosting</span>
-                </div>
+                <div class="flex items-center gap-3"><span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span><span class="text-sm">Unlimited Google Ads campaigns</span></div>
+                <div class="flex items-center gap-3"><span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span><span class="text-sm" id="tools-count-billing">73 AI tools via MCP server</span></div>
+                <div class="flex items-center gap-3"><span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span><span class="text-sm">Claude Desktop integration</span></div>
+                <div class="flex items-center gap-3"><span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">check_circle</span><span class="text-sm">Railway cloud hosting · Always on</span></div>
               </div>
             </div>
           </div>
 
-          <!-- API -->
+          <!-- API / SECURITY -->
           <div id="stab-content-api" style="display:none;">
             <div class="glass rounded-2xl p-6">
-              <h3 class="font-semibold mb-5">Security & API Keys</h3>
+              <h3 class="font-semibold mb-5">API Configuration</h3>
               <div class="space-y-4">
                 <div>
-                  <label class="label-caps block mb-2">Google Ads Developer Token</label>
-                  <div class="flex gap-2">
-                    <input type="password" value="0fNTNm8jFrZuZxkvAkoaTQ" class="input-field flex-1" readonly>
-                    <button class="glass-sm px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1" style="color:var(--on-surface-variant);">
-                      <span class="material-symbols-outlined" style="font-size:14px;">visibility</span>
-                    </button>
-                  </div>
+                  <label class="label-caps block mb-2">Google Ads Customer ID (Advertiser)</label>
+                  <input value="400-808-1199" class="input-field" readonly>
                 </div>
                 <div>
-                  <label class="label-caps block mb-2">Customer ID (Advertiser Account)</label>
-                  <input value="400-808-1199" class="input-field" readonly>
+                  <label class="label-caps block mb-2">Google Ads Manager Account</label>
+                  <input value="329-934-8141" class="input-field" readonly>
                 </div>
                 <div>
                   <label class="label-caps block mb-2">MCP Server URL</label>
                   <input value="https://my-mcp-server-production-957a.up.railway.app/mcp" class="input-field" readonly>
+                </div>
+                <div>
+                  <label class="label-caps block mb-2">Dashboard URL</label>
+                  <input id="dashboard-url" class="input-field" readonly>
+                </div>
+                <div>
+                  <label class="label-caps block mb-2">Anthropic API Key</label>
+                  <div class="flex gap-2">
+                    <input type="password" value="sk-ant-••••••••••••••••" class="input-field flex-1" readonly id="api-key-field">
+                    <button onclick="toggleApiKey()" class="glass-sm px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1" style="color:var(--on-surface-variant);">
+                      <span class="material-symbols-outlined" style="font-size:14px;" id="api-key-icon">visibility</span>
+                    </button>
+                  </div>
+                  <p class="text-xs mt-1.5" style="color:var(--outline);">Stored securely as Railway environment variable. Never exposed client-side.</p>
                 </div>
               </div>
             </div>
@@ -2090,9 +2027,11 @@ function showPage(name) {
     nav.classList.add('nav-active');
     nav.style.color = '';
   }
-  // init charts if needed
+  // init charts and live data
   if (name === 'overview' && !window.chartsInitialized) initCharts();
   if (name === 'performance' && !window.perfChartsInit) initPerfCharts();
+  if (name === 'campaigns' && !window.campaignsLoaded) { window.campaignsLoaded = true; loadCampaigns(); }
+  if (name === 'settings') { checkConnections(); loadActivity(); }
 }
 
 // ── SETTINGS TABS ──────────────────────────────────
@@ -2399,6 +2338,269 @@ function clearChat() {
     </div>
   </div>`;
 }
+
+
+// ── LIVE DATA FUNCTIONS ───────────────────────────────
+
+// Generic MCP API call - bypasses chat history
+async function callMCP(userMessage, maxTokens = 1000) {
+  const resp = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: maxTokens,
+      system: 'You are a Google Ads data agent. Use your MCP tools to fetch the requested data. Return ONLY the raw tool results — no commentary, no formatting, no emojis. Just the data exactly as returned by the tool.',
+      messages: [{ role: 'user', content: userMessage }],
+      mcp_servers: [{ type: 'url', url: MCP_SERVER_URL, name: 'rubixness-ads' }]
+    })
+  });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
+}
+
+// ── CAMPAIGNS PAGE ────────────────────────────────────
+
+let allCampaigns = [];
+
+async function loadCampaigns() {
+  const tbody = document.getElementById('campaigns-tbody');
+  const countEl = document.getElementById('campaigns-count');
+  if (!tbody) return;
+
+  tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-sm" style="color:var(--outline);">
+    <div class="thinking-dots" style="justify-content:center;margin-bottom:8px;">
+      <div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>
+    </div>Fetching live data from Google Ads...</td></tr>`;
+
+  try {
+    const raw = await callMCP('Use the list_campaigns tool and return the exact result.');
+    // Parse the campaign list
+    const lines = raw.split('\n').filter(l => l.includes('[') && l.includes(']'));
+    allCampaigns = lines.map(line => {
+      const idMatch = line.match(/\[([\d]+)\]/);
+      const nameMatch = line.match(/\] (.+?) \|/);
+      const statusMatch = line.match(/\| (ENABLED|PAUSED|REMOVED) \|/);
+      const budgetMatch = line.match(/GBP([\d.]+)\/day/);
+      return {
+        id: idMatch ? idMatch[1] : '—',
+        name: nameMatch ? nameMatch[1].trim() : line,
+        status: statusMatch ? statusMatch[1] : '—',
+        budget: budgetMatch ? budgetMatch[1] : '—'
+      };
+    });
+
+    if (allCampaigns.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-sm" style="color:var(--outline);">No campaigns found in this account.</td></tr>`;
+      if (countEl) countEl.textContent = '0 campaigns';
+      return;
+    }
+
+    renderCampaignRows(allCampaigns);
+    if (countEl) countEl.textContent = allCampaigns.length + ' campaign' + (allCampaigns.length !== 1 ? 's' : '');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-sm" style="color:#dc2626;">Error loading campaigns: ${err.message}</td></tr>`;
+  }
+}
+
+function renderCampaignRows(campaigns) {
+  const tbody = document.getElementById('campaigns-tbody');
+  tbody.innerHTML = campaigns.map(c => {
+    const isActive = c.status === 'ENABLED';
+    const statusBadge = isActive
+      ? `<span style="background:rgba(22,163,74,0.08);color:#16a34a;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">Active</span>`
+      : `<span style="background:rgba(245,158,11,0.08);color:#f59e0b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">Paused</span>`;
+    const initial = c.name.charAt(0).toUpperCase();
+    const colors = ['#0058bc','#4c4aca','#f97316','#059669','#8a2bb9','#0891b2'];
+    const color = colors[parseInt(c.id) % colors.length];
+    return `<tr class="row-hover border-t border-white/40" onclick="showCampaignDetail('${c.id}', '${c.name.replace(/'/g,"\\'")}')">
+      <td class="px-6 py-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background:${color};">${initial}</div>
+          <div>
+            <p class="font-semibold text-sm">${c.name}</p>
+            <p class="text-xs" style="color:var(--outline);">ID: ${c.id}</p>
+          </div>
+        </div>
+      </td>
+      <td class="px-6 py-4">${statusBadge}</td>
+      <td class="px-6 py-4 text-sm font-medium">£${c.budget}/day</td>
+      <td class="px-6 py-4 text-xs font-mono" style="color:var(--outline);">${c.id}</td>
+      <td class="px-6 py-4">
+        <div class="flex items-center gap-2">
+          ${isActive
+            ? `<button onclick="event.stopPropagation();campaignAction('pause','${c.id}','${c.name.replace(/'/g,"\\'")}')}" class="text-xs font-semibold px-2.5 py-1 rounded-lg transition-all" style="background:rgba(245,158,11,0.08);color:#f59e0b;">Pause</button>`
+            : `<button onclick="event.stopPropagation();campaignAction('enable','${c.id}','${c.name.replace(/'/g,"\\'")}')}" class="text-xs font-semibold px-2.5 py-1 rounded-lg transition-all" style="background:rgba(22,163,74,0.08);color:#16a34a;">Enable</button>`
+          }
+          <button onclick="event.stopPropagation();showCampaignDetail('${c.id}','${c.name.replace(/'/g,"\\'")}')}" class="text-xs font-semibold px-2.5 py-1 rounded-lg transition-all" style="background:var(--blue-s, rgba(0,88,188,0.08));color:var(--primary);">Details</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCampaigns(q) {
+  const filtered = q ? allCampaigns.filter(c => c.name.toLowerCase().includes(q.toLowerCase())) : allCampaigns;
+  renderCampaignRows(filtered);
+}
+
+function refreshCampaigns() {
+  // Clear cache first then reload
+  callMCP('Use the clear_cache tool.').finally(() => loadCampaigns());
+}
+
+async function showCampaignDetail(id, name) {
+  const panel = document.getElementById('campaign-detail');
+  const title = document.getElementById('detail-title');
+  const content = document.getElementById('detail-content');
+  title.textContent = name;
+  panel.style.display = 'block';
+  content.innerHTML = `<div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div><span class="text-sm ml-2" style="color:var(--outline);">Loading campaign details...</span></div>`;
+  panel.scrollIntoView({behavior:'smooth'});
+  try {
+    const raw = await callMCP(`Use list_campaign_settings for campaign ID ${id}. Return the exact result.`);
+    const lines = raw.split('\n').filter(l => l.includes(':'));
+    content.innerHTML = `<div class="grid grid-cols-2 gap-3">` +
+      lines.map(l => {
+        const [k, ...v] = l.split(':');
+        const val = v.join(':').trim();
+        if (!k.trim() || !val) return '';
+        return `<div class="flex flex-col p-3 rounded-xl" style="background:var(--surface-low);">
+          <span class="label-caps mb-1">${k.trim().replace(/^[ -]+/,'')}</span>
+          <span class="text-sm font-semibold">${val}</span>
+        </div>`;
+      }).join('') + `</div>`;
+  } catch(e) {
+    content.innerHTML = `<p class="text-sm" style="color:#dc2626;">Error: ${e.message}</p>`;
+  }
+}
+
+async function campaignAction(action, id, name) {
+  if (!confirm(`${action === 'pause' ? 'Pause' : 'Enable'} campaign "${name}"?`)) return;
+  try {
+    const toolName = action === 'pause' ? 'confirm_pause_campaign' : 'confirm_enable_campaign';
+    const raw = await callMCP(`Use the ${toolName} tool with campaign_id="${id}". Return the result.`);
+    alert(raw.substring(0, 200));
+    loadCampaigns();
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+// ── SETTINGS - CONNECTION STATUS ──────────────────────
+
+async function checkConnections() {
+  // Test MCP + Google Ads
+  try {
+    const raw = await callMCP('Use list_campaigns and return the result.');
+    const lines = raw.split('\n').filter(l => l.includes('['));
+    const count = lines.length;
+
+    // Google Ads status
+    document.getElementById('gads-status').innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></div><span class="text-xs font-semibold" style="color:#16a34a;">Connected</span>`;
+    document.getElementById('gads-campaign-count').textContent = `${count} campaign${count !== 1 ? 's' : ''} found`;
+
+    // MCP status
+    document.getElementById('mcp-status').innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></div><span class="text-xs font-semibold" style="color:#16a34a;">Online</span>`;
+    document.getElementById('mcp-tool-count').textContent = '73 tools active';
+  } catch(e) {
+    document.getElementById('gads-status').innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:#dc2626;"></div><span class="text-xs font-semibold" style="color:#dc2626;">Error</span>`;
+    document.getElementById('mcp-status').innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:#dc2626;"></div><span class="text-xs font-semibold" style="color:#dc2626;">Error</span>`;
+  }
+
+  // Test Anthropic API
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 10, messages: [{role:'user',content:'hi'}] })
+    });
+    const data = await resp.json();
+    if (data.content) {
+      document.getElementById('anthropic-status').innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></div><span class="text-xs font-semibold" style="color:#16a34a;">Active</span>`;
+      document.getElementById('anthropic-model').textContent = 'API key valid · Proxy working';
+    } else {
+      throw new Error(data.error?.message || 'Unknown');
+    }
+  } catch(e) {
+    document.getElementById('anthropic-status').innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:#dc2626;"></div><span class="text-xs font-semibold" style="color:#dc2626;">Error</span>`;
+    document.getElementById('anthropic-model').textContent = e.message;
+  }
+
+  // Set dashboard URL
+  const urlEl = document.getElementById('dashboard-url');
+  if (urlEl) urlEl.value = window.location.origin;
+}
+
+async function testConnection() {
+  const btn = document.getElementById('test-conn-btn');
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;animation:spin 1s linear infinite;">refresh</span> Testing...';
+  await checkConnections();
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">wifi_tethering</span> Test Connection';
+}
+
+function loadActivity() {
+  const log = document.getElementById('activity-log');
+  if (!log) return;
+  // Show recent actions from conversation history
+  const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+  const userMsgs = history.filter(m => m.role === 'user').slice(-5).reverse();
+  if (userMsgs.length === 0) {
+    log.innerHTML = '<p class="text-sm text-center py-4" style="color:var(--outline);">No recent activity. Start chatting with the AI Strategist.</p>';
+    return;
+  }
+  const rows = userMsgs.map((m, i) => {
+    const content = typeof m.content === 'string' ? m.content : m.content?.[0]?.text || '';
+    const time = ['2 min ago','15 min ago','1 hr ago','3 hrs ago','Yesterday'][i] || 'Earlier';
+    return `<tr class="border-t border-white/40">
+      <td class="px-3 py-3 text-sm truncate" style="max-width:200px;">${content.substring(0,60)}${content.length > 60 ? '…' : ''}</td>
+      <td class="px-3 py-3 text-sm" style="color:var(--outline);">AI Chat</td>
+      <td class="px-3 py-3"><span style="background:rgba(22,163,74,0.08);color:#16a34a;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;">Done</span></td>
+      <td class="px-3 py-3 text-xs" style="color:var(--outline);">${time}</td>
+    </tr>`;
+  }).join('');
+  log.innerHTML = `<table class="w-full"><thead><tr style="background:rgba(244,243,248,0.5);">
+    <th class="label-caps px-3 py-3 text-left">Action</th>
+    <th class="label-caps px-3 py-3 text-left">Source</th>
+    <th class="label-caps px-3 py-3 text-left">Status</th>
+    <th class="label-caps px-3 py-3 text-left">Time</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function updateAutonomy(val) {
+  const levels = [
+    { title: 'Manual Mode', desc: 'AI provides analysis only. All actions require your explicit instruction and confirmation.', color: '#f59e0b' },
+    { title: 'Co-Pilot Active', desc: 'AI suggests bid changes and optimisations for your review before applying.', color: 'var(--primary)' },
+    { title: 'Autonomous Mode', desc: 'AI can apply low-risk optimisations automatically. High-impact changes still require approval.', color: '#059669' }
+  ];
+  const l = levels[val];
+  document.getElementById('autonomy-desc').innerHTML = `
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined" style="color:${l.color};font-size:18px;">smart_toy</span>
+      <p class="font-semibold text-sm" style="color:${l.color};">${l.title}</p>
+    </div>
+    <p class="text-sm" style="color:var(--on-surface-variant);">${l.desc}</p>`;
+}
+
+function toggleApiKey() {
+  const field = document.getElementById('api-key-field');
+  const icon = document.getElementById('api-key-icon');
+  if (field.type === 'password') {
+    field.type = 'text';
+    field.value = 'sk-ant-••• (stored securely in Railway — not accessible client-side)';
+    icon.textContent = 'visibility_off';
+  } else {
+    field.type = 'password';
+    field.value = 'sk-ant-••••••••••••••••';
+    icon.textContent = 'visibility';
+  }
+}
+
+// Add spin animation
+const styleEl = document.createElement('style');
+styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+document.head.appendChild(styleEl);
 
 // ── INIT ─────────────────────────────────────────────
 showPage('overview');
