@@ -95,7 +95,7 @@ body { background: var(--surface); color: var(--on-surface); }
 
 /* Section pages */
 .page { display: none; }
-.page.active { display: block; }
+.page.active { }
 
 /* Insight cards border accents */
 .insight-blue { border-left: 4px solid var(--primary); }
@@ -635,131 +635,749 @@ body.dark .notif-dot {
     <!-- ═══════════════════════════════════════════════
          PAGE: AI STRATEGIST
     ═══════════════════════════════════════════════ -->
-    <div id="page-ai" class="page">
-      <div class="flex items-start justify-between mb-8">
-        <div>
-          <p class="label-caps mb-1">AI Command Center</p>
-          <h1 class="text-3xl font-semibold" style="letter-spacing:-0.02em;">Rubixness Strategist</h1>
-          <p class="mt-1 text-sm" style="color:var(--on-surface-variant);">Real-time AI orchestration of your Google Ads.</p>
-        </div>
-      </div>
+    <div id="page-ai" class="page" style="height:calc(100vh - 60px);display:none;flex-direction:column;padding:0;">
+      
+      <style>
+        /* AI Strategist specific styles */
+        .ai-page { font-family: 'DM Sans', 'Plus Jakarta Sans', sans-serif; }
+        
+        .ai-layout {
+          display: grid;
+          grid-template-columns: 340px 1fr;
+          height: 100%;
+          overflow: hidden;
+        }
+        
+        /* LEFT PANEL */
+        .ai-left {
+          border-right: 1px solid rgba(0,0,0,0.06);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: var(--surface-low);
+        }
+        
+        .ai-left-header {
+          padding: 24px 20px 16px;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+          flex-shrink: 0;
+        }
+        
+        .ai-left-header h2 {
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--outline);
+          margin-bottom: 4px;
+        }
 
-      <div class="grid grid-cols-2 gap-6">
-        <!-- Left: Live campaign + smart actions -->
-        <div class="space-y-5">
-          <div class="glass rounded-2xl p-6">
-            <div class="flex items-center justify-between mb-4">
-              <p class="label-caps">Active Campaign</p>
-              <span class="badge-live">Live</span>
+        .ai-left-header p {
+          font-size: 12px;
+          color: var(--on-surface-variant);
+        }
+        
+        /* Strategy Cards */
+        .strategy-cards {
+          flex: 1;
+          overflow-y: auto;
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .strategy-card {
+          background: white;
+          border-radius: 12px;
+          padding: 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: 1.5px solid transparent;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        body.dark .strategy-card {
+          background: var(--surface-container);
+          border-color: transparent;
+        }
+        
+        .strategy-card:hover {
+          border-color: var(--primary);
+          transform: translateX(2px);
+        }
+        
+        .strategy-card.active {
+          border-color: var(--primary);
+          background: rgba(0,88,188,0.04);
+        }
+        
+        body.dark .strategy-card.active {
+          background: rgba(77,158,255,0.08);
+        }
+        
+        .strategy-card-accent {
+          position: absolute;
+          left: 0; top: 0; bottom: 0;
+          width: 3px;
+          border-radius: 3px 0 0 3px;
+        }
+        
+        .sc-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+        }
+        
+        .sc-icon {
+          width: 28px; height: 28px;
+          border-radius: 7px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .sc-title {
+          font-size: 12.5px;
+          font-weight: 700;
+          color: var(--on-surface);
+          letter-spacing: -0.01em;
+        }
+        
+        .sc-desc {
+          font-size: 11.5px;
+          color: var(--on-surface-variant);
+          line-height: 1.5;
+          margin-left: 36px;
+        }
+        
+        .sc-badge {
+          margin-left: auto;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          padding: 2px 6px;
+          border-radius: 4px;
+          flex-shrink: 0;
+        }
+        
+        /* Account Health Widget */
+        .health-widget {
+          margin: 12px;
+          padding: 14px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #0058bc 0%, #4c4aca 100%);
+          flex-shrink: 0;
+        }
+        
+        .health-score {
+          font-size: 36px;
+          font-weight: 300;
+          color: white;
+          letter-spacing: -0.03em;
+          line-height: 1;
+        }
+        
+        .health-label {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.6);
+          margin-bottom: 8px;
+        }
+        
+        .health-bars {
+          display: flex; gap: 3px; margin-top: 10px;
+        }
+        
+        .health-bar {
+          flex: 1; height: 3px; border-radius: 2px;
+          background: rgba(255,255,255,0.25);
+        }
+        
+        .health-bar.filled { background: rgba(255,255,255,0.9); }
+        
+        /* RIGHT PANEL - CHAT */
+        .ai-right {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: var(--surface);
+        }
+        
+        /* Chat header */
+        .chat-header {
+          padding: 16px 24px;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-shrink: 0;
+          background: var(--surface);
+        }
+        
+        .chat-header-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .chat-avatar {
+          width: 32px; height: 32px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #0058bc, #4c4aca);
+          display: flex; align-items: center; justify-content: center;
+        }
+        
+        .chat-status {
+          display: flex; align-items: center; gap: 5px;
+        }
+        
+        .status-pulse {
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: #22c55e;
+          animation: pulse-green 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        /* Chat messages */
+        .chat-messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          scroll-behavior: smooth;
+        }
+        
+        /* Message bubbles */
+        .msg-user {
+          display: flex;
+          justify-content: flex-end;
+        }
+        
+        .msg-user-bubble {
+          max-width: 65%;
+          background: var(--primary);
+          color: white;
+          border-radius: 16px 16px 4px 16px;
+          padding: 12px 16px;
+          font-size: 13.5px;
+          line-height: 1.6;
+        }
+        
+        .msg-ai {
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+          max-width: 85%;
+        }
+        
+        .msg-ai-avatar {
+          width: 28px; height: 28px;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #0058bc, #4c4aca);
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+        
+        .msg-ai-content {
+          background: white;
+          border: 1px solid rgba(0,0,0,0.07);
+          border-radius: 4px 16px 16px 16px;
+          padding: 14px 18px;
+          font-size: 13.5px;
+          line-height: 1.7;
+          color: var(--on-surface);
+          box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        
+        body.dark .msg-ai-content {
+          background: var(--surface-low);
+          border-color: rgba(255,255,255,0.08);
+        }
+        
+        /* Rich response components */
+        .ai-section-title {
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--outline);
+          margin-bottom: 10px;
+          margin-top: 14px;
+          padding-bottom: 6px;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        
+        .ai-section-title:first-child { margin-top: 0; }
+        
+        .ai-data-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 0;
+          border-bottom: 1px solid rgba(0,0,0,0.04);
+          font-size: 13px;
+        }
+        
+        .ai-data-row:last-child { border-bottom: none; }
+        
+        .ai-data-label { color: var(--on-surface-variant); }
+        .ai-data-value { font-weight: 600; color: var(--on-surface); }
+        .ai-data-good { color: #16a34a; font-weight: 600; }
+        .ai-data-bad { color: #dc2626; font-weight: 600; }
+        .ai-data-neutral { color: var(--on-surface-variant); }
+        
+        .ai-campaign-card {
+          background: var(--surface-low);
+          border-radius: 10px;
+          padding: 12px 14px;
+          margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        
+        body.dark .ai-campaign-card {
+          background: var(--surface-container);
+        }
+        
+        .ai-campaign-name {
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--on-surface);
+        }
+        
+        .ai-campaign-meta {
+          font-size: 11px;
+          color: var(--on-surface-variant);
+          margin-top: 2px;
+        }
+        
+        .ai-stat-chip {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: 6px;
+        }
+        
+        .ai-insight-block {
+          background: linear-gradient(135deg, rgba(0,88,188,0.06), rgba(76,74,202,0.04));
+          border: 1px solid rgba(0,88,188,0.15);
+          border-radius: 10px;
+          padding: 12px 14px;
+          margin-top: 10px;
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+        }
+        
+        .ai-insight-icon {
+          width: 24px; height: 24px;
+          background: var(--primary-light);
+          border-radius: 6px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        
+        .ai-insight-text {
+          font-size: 12.5px;
+          line-height: 1.6;
+          color: var(--on-surface-variant);
+        }
+        
+        .ai-insight-text strong { color: var(--primary); }
+        
+        .ai-action-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 6px 12px;
+          border-radius: 7px;
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          cursor: pointer;
+          transition: all 0.15s;
+          margin-top: 10px;
+          margin-right: 6px;
+          border: 1.5px solid var(--primary);
+          color: var(--primary);
+          background: transparent;
+        }
+        
+        .ai-action-btn:hover {
+          background: var(--primary);
+          color: white;
+        }
+        
+        .ai-action-btn.primary {
+          background: var(--primary);
+          color: white;
+          border-color: var(--primary);
+        }
+        
+        .ai-action-btn.primary:hover {
+          opacity: 0.9;
+        }
+        
+        .msg-time {
+          font-size: 10px;
+          color: var(--outline);
+          margin-top: 4px;
+          padding: 0 4px;
+        }
+        
+        /* Thinking animation */
+        .thinking-dots {
+          display: flex; gap: 4px; align-items: center; padding: 4px 0;
+        }
+        
+        .thinking-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: var(--primary);
+          animation: tdot 1.2s infinite;
+        }
+        
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes tdot {
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        /* Input area */
+        .chat-input-area {
+          padding: 16px 24px 20px;
+          border-top: 1px solid rgba(0,0,0,0.06);
+          flex-shrink: 0;
+          background: var(--surface);
+        }
+        
+        .quick-actions {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          margin-bottom: 12px;
+        }
+        
+        .quick-action {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 5px 11px;
+          border-radius: 20px;
+          font-size: 11.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+          background: var(--surface-low);
+          border: 1px solid var(--outline-variant);
+          color: var(--on-surface-variant);
+          user-select: none;
+        }
+        
+        .quick-action:hover {
+          background: var(--primary-light);
+          border-color: var(--primary);
+          color: var(--primary);
+        }
+        
+        .chat-input-row {
+          display: flex;
+          gap: 10px;
+          align-items: flex-end;
+        }
+        
+        .chat-textarea {
+          flex: 1;
+          background: var(--surface-low);
+          border: 1.5px solid var(--outline-variant);
+          border-radius: 12px;
+          padding: 11px 14px;
+          font-size: 13.5px;
+          color: var(--on-surface);
+          font-family: inherit;
+          resize: none;
+          outline: none;
+          transition: border-color 0.15s;
+          max-height: 120px;
+          min-height: 44px;
+          line-height: 1.5;
+        }
+        
+        .chat-textarea:focus {
+          border-color: var(--primary);
+          background: white;
+        }
+        
+        body.dark .chat-textarea:focus {
+          background: var(--surface-container);
+        }
+        
+        .chat-textarea::placeholder {
+          color: var(--outline);
+        }
+        
+        .send-btn {
+          width: 44px; height: 44px;
+          border-radius: 12px;
+          background: var(--primary);
+          border: none;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer;
+          transition: all 0.15s;
+          flex-shrink: 0;
+        }
+        
+        .send-btn:hover { opacity: 0.9; transform: scale(1.03); }
+        .send-btn:active { transform: scale(0.97); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* Context bar */
+        .context-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 0 10px;
+        }
+        
+        .context-chip {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 11px;
+          color: var(--outline);
+          font-weight: 500;
+        }
+        
+        body.dark .ai-left { background: rgba(13,17,23,0.6); }
+        body.dark .chat-header { background: var(--surface); }
+        body.dark .ai-right { background: var(--surface); }
+        body.dark .chat-input-area { background: var(--surface); }
+      </style>
+      
+      <div class="ai-layout ai-page">
+        
+        <!-- LEFT: Strategy Panel -->
+        <div class="ai-left">
+          <div class="ai-left-header">
+            <h2>Strategy Engine</h2>
+            <p>AI-powered optimisation insights</p>
+          </div>
+          
+          <!-- Account Health -->
+          <div class="health-widget">
+            <div class="health-label">Account Health Score</div>
+            <div class="health-score">72<span style="font-size:18px;opacity:.6">/100</span></div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:4px;">Grade B · Room to improve</div>
+            <div class="health-bars">
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar filled"></div>
+              <div class="health-bar"></div>
+              <div class="health-bar"></div>
+              <div class="health-bar"></div>
             </div>
-            <div class="flex items-center gap-4 mb-5">
-              <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:var(--primary);">
-                <span class="material-symbols-outlined text-white">campaign</span>
+          </div>
+          
+          <!-- Strategy Cards -->
+          <div class="strategy-cards">
+            
+            <div class="strategy-card active" onclick="loadStrategy(this, 'audit')">
+              <div class="strategy-card-accent" style="background:#0058bc;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(0,88,188,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#0058bc;">analytics</span>
+                </div>
+                <span class="sc-title">Full Account Audit</span>
+                <span class="sc-badge" style="background:rgba(0,88,188,0.1);color:#0058bc;">New</span>
+              </div>
+              <div class="sc-desc">Complete health check across all campaigns, keywords and ads.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'wasted')">
+              <div class="strategy-card-accent" style="background:#dc2626;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(220,38,38,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#dc2626;">money_off</span>
+                </div>
+                <span class="sc-title">Wasted Spend Report</span>
+                <span class="sc-badge" style="background:rgba(220,38,38,0.1);color:#dc2626;">Action needed</span>
+              </div>
+              <div class="sc-desc">Keywords burning budget with zero conversions.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'keywords')">
+              <div class="strategy-card-accent" style="background:#7c3aed;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(124,58,237,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#7c3aed;">key</span>
+                </div>
+                <span class="sc-title">Keyword Opportunities</span>
+                <span class="sc-badge" style="background:rgba(124,58,237,0.1);color:#7c3aed;">Insight</span>
+              </div>
+              <div class="sc-desc">High-intent keywords missing from your campaigns.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'bids')">
+              <div class="strategy-card-accent" style="background:#059669;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(5,150,105,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#059669;">price_change</span>
+                </div>
+                <span class="sc-title">Bid Optimisation</span>
+                <span class="sc-badge" style="background:rgba(5,150,105,0.1);color:#059669;">Opportunity</span>
+              </div>
+              <div class="sc-desc">Adjust bids based on conversion performance data.</div>
+            </div>
+            
+            <div class="strategy-card" onclick="loadStrategy(this, 'quality')">
+              <div class="strategy-card-accent" style="background:#d97706;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(217,119,6,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#d97706;">workspace_premium</span>
+                </div>
+                <span class="sc-title">Quality Score Analysis</span>
+                <span class="sc-badge" style="background:rgba(217,119,6,0.1);color:#d97706;">Optimise</span>
+              </div>
+              <div class="sc-desc">Improve ad relevance and landing page experience.</div>
+            </div>
+
+            <div class="strategy-card" onclick="loadStrategy(this, 'forecast')">
+              <div class="strategy-card-accent" style="background:#0891b2;"></div>
+              <div class="sc-header">
+                <div class="sc-icon" style="background:rgba(8,145,178,0.1);">
+                  <span class="material-symbols-outlined" style="font-size:14px;color:#0891b2;">calendar_clock</span>
+                </div>
+                <span class="sc-title">Budget Forecast</span>
+                <span class="sc-badge" style="background:rgba(8,145,178,0.1);color:#0891b2;">Planning</span>
+              </div>
+              <div class="sc-desc">Project spend and conversions for the rest of the month.</div>
+            </div>
+            
+          </div>
+        </div>
+        
+        <!-- RIGHT: Chat Interface -->
+        <div class="ai-right">
+          
+          <!-- Chat Header -->
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <div class="chat-avatar">
+                <span class="material-symbols-outlined text-white" style="font-size:15px;">smart_toy</span>
               </div>
               <div>
-                <h3 class="font-semibold">Strategy Consulting UK</h3>
-                <p class="text-sm" style="color:var(--outline);">Google Search · CPC bidding</p>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="rounded-xl p-4" style="background:var(--surface-low);">
-                <p class="label-caps mb-1">Current CPA</p>
-                <p class="text-2xl font-500" style="font-weight:500;letter-spacing:-0.02em;">£22.16</p>
-              </div>
-              <div class="rounded-xl p-4" style="background:var(--surface-low);">
-                <p class="label-caps mb-1">CTR</p>
-                <p class="text-2xl font-500" style="font-weight:500;letter-spacing:-0.02em;">3.84%</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- AI Strategy Insight -->
-          <div class="rounded-2xl p-6 text-white" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">
-            <div class="flex items-center gap-2 mb-3 opacity-80">
-              <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
-              <p style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;">AI Strategy Insight</p>
-            </div>
-            <p class="text-base font-medium leading-relaxed">"Strategy Consulting campaign is your top performer this week — 18 leads at £19.40 CPL. Recommend increasing daily budget by £5 to capture more morning traffic."</p>
-          </div>
-
-          <!-- Smart Actions -->
-          <div class="glass rounded-2xl p-6">
-            <p class="label-caps mb-4">Smart Actions</p>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between p-3 rounded-xl cursor-pointer hover:bg-black/5 transition-colors" style="background:var(--surface-low);">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#fff7ed;">
-                    <span class="material-symbols-outlined" style="color:#f97316;font-size:16px;">warning</span>
-                  </div>
-                  <div>
-                    <p class="text-sm font-semibold">Reduce spend on Brand Awareness</p>
-                    <p class="text-xs" style="color:var(--outline);">High CPA alert · £29.43</p>
-                  </div>
+                <div style="font-size:13.5px;font-weight:700;color:var(--on-surface);">RubixAds AI Strategist</div>
+                <div class="chat-status">
+                  <div class="status-pulse"></div>
+                  <span style="font-size:11px;color:var(--outline);">Connected · Google Ads 400-808-1199</span>
                 </div>
-                <span class="material-symbols-outlined" style="color:var(--outline);font-size:18px;">chevron_right</span>
-              </div>
-              <div class="flex items-center justify-between p-3 rounded-xl cursor-pointer hover:bg-black/5 transition-colors" style="background:var(--surface-low);">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#f0fdf4;">
-                    <span class="material-symbols-outlined" style="color:#16a34a;font-size:16px;">trending_up</span>
-                  </div>
-                  <div>
-                    <p class="text-sm font-semibold">Increase bids on Strategy keywords</p>
-                    <p class="text-xs" style="color:var(--outline);">Top-tier CTR performance</p>
-                  </div>
-                </div>
-                <span class="material-symbols-outlined" style="color:var(--outline);font-size:18px;">chevron_right</span>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Right: Chat -->
-        <div class="glass rounded-2xl flex flex-col" style="height:600px;">
-          <div class="px-5 py-4 border-b border-white/50 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">
-              <span class="material-symbols-outlined text-white" style="font-size:16px;">smart_toy</span>
-            </div>
-            <div class="flex-1">
-              <p class="font-semibold text-sm">RubixAds AI</p>
-              <div class="flex items-center gap-1.5"><div style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></div><p class="text-xs" style="color:var(--outline);">Connected · MCP Server</p></div>
-            </div>
-            <button onclick="clearChat()" title="Clear chat" class="p-1.5 rounded-lg hover:bg-black/5 transition-colors">
-              <span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">delete_sweep</span>
-            </button>
-          </div>
-          <div class="flex-1 overflow-y-auto p-5 space-y-4" id="chat-messages">
-            <div class="flex gap-3" id="welcome-msg">
-              <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#0058bc,#4c4aca);">
-                <span class="material-symbols-outlined text-white" style="font-size:13px;">smart_toy</span>
-              </div>
-              <div class="glass-sm rounded-2xl rounded-tl-sm px-4 py-3 max-w-sm">
-                <p class="text-sm leading-relaxed">Hello Asif! I'm connected to your Google Ads account via your MCP server. I can list campaigns, create ads, adjust budgets, pull reports and more. What would you like to do?</p>
-                <p class="text-xs mt-1.5" style="color:var(--outline);">RubixAds AI · ready</p>
-              </div>
-            </div>
-          </div>
-          <div class="p-4 border-t border-white/50">
-            <div class="flex items-center gap-2 mb-3 flex-wrap">
-              <button onclick="quickCmd('List my campaigns')" class="glass-sm px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80" style="color:var(--on-surface-variant);">📋 List campaigns</button>
-              <button onclick="quickCmd('Show wasted spend report for 30 days')" class="glass-sm px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80" style="color:var(--on-surface-variant);">💸 Wasted spend</button>
-              <button onclick="quickCmd('Get account summary')" class="glass-sm px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80" style="color:var(--on-surface-variant);">📊 Account summary</button>
-              <button onclick="quickCmd('Get campaign performance for last 30 days')" class="glass-sm px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80" style="color:var(--on-surface-variant);">📈 Performance</button>
-              <button onclick="quickCmd('Show keyword performance')" class="glass-sm px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80" style="color:var(--on-surface-variant);">🔑 Keywords</button>
-            </div>
-            <div class="flex items-center gap-2">
-              <input id="chat-input" placeholder="Ask anything — list campaigns, create ads, check budget..." class="input-field flex-1" style="background:var(--surface-low);" onkeypress="if(event.key==='Enter')sendChat()">
-              <button onclick="sendChat()" id="send-btn" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:opacity-90 active:scale-95" style="background:var(--primary);">
-                <span class="material-symbols-outlined text-white" style="font-size:16px;" id="send-icon">send</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button onclick="clearChat()" title="Clear conversation" style="padding:6px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;color:var(--outline);" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='none'">
+                <span class="material-symbols-outlined" style="font-size:18px;">delete_sweep</span>
+              </button>
+              <button onclick="exportChat()" title="Export conversation" style="padding:6px;border-radius:8px;background:none;border:none;cursor:pointer;display:flex;align-items:center;color:var(--outline);" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='none'">
+                <span class="material-symbols-outlined" style="font-size:18px;">download</span>
               </button>
             </div>
-            <p class="text-xs mt-2 text-center" style="color:var(--outline);">Live · MCP Server · Google Ads 400-808-1199</p>
+          </div>
+          
+          <!-- Messages -->
+          <div class="chat-messages" id="chat-messages">
+            <!-- Welcome message -->
+            <div class="msg-ai" id="welcome-msg">
+              <div class="msg-ai-avatar">
+                <span class="material-symbols-outlined text-white" style="font-size:12px;">smart_toy</span>
+              </div>
+              <div>
+                <div class="msg-ai-content">
+                  <div class="ai-section-title">RubixAds AI Strategist</div>
+                  <p style="color:var(--on-surface);font-weight:500;margin-bottom:8px;">Good day, Asif. I'm connected to your Google Ads account and ready to analyse, optimise, and execute.</p>
+                  <p style="color:var(--on-surface-variant);font-size:13px;">Select a strategy from the panel to run an automated analysis, or ask me anything directly. I can pull live data, suggest improvements, and make changes with your approval.</p>
+                  <div class="ai-insight-block">
+                    <div class="ai-insight-icon">
+                      <span class="material-symbols-outlined" style="font-size:13px;color:var(--primary);">lightbulb</span>
+                    </div>
+                    <div class="ai-insight-text">
+                      <strong>Try asking:</strong> "What should I do to improve my campaign performance?" or "Which keywords are wasting my budget?"
+                    </div>
+                  </div>
+                </div>
+                <div class="msg-time">RubixAds AI · Ready</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Input Area -->
+          <div class="chat-input-area">
+            <div class="context-bar">
+              <div class="quick-actions">
+                <div class="quick-action" onclick="quickCmd('Run a full account audit and tell me what needs improving')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">manage_search</span>
+                  Account Audit
+                </div>
+                <div class="quick-action" onclick="quickCmd('Show me the wasted spend report — keywords with no conversions')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">money_off</span>
+                  Wasted Spend
+                </div>
+                <div class="quick-action" onclick="quickCmd('List all my campaigns with their current status and performance')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">campaign</span>
+                  Campaigns
+                </div>
+                <div class="quick-action" onclick="quickCmd('What recommendations does Google have for my account?')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">tips_and_updates</span>
+                  Recommendations
+                </div>
+                <div class="quick-action" onclick="quickCmd('Forecast my budget for the rest of the month')">
+                  <span class="material-symbols-outlined" style="font-size:13px;">trending_up</span>
+                  Forecast
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <textarea 
+                id="chat-input" 
+                class="chat-textarea" 
+                placeholder="Ask about campaign performance, request optimisations, or give instructions..."
+                rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+                oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
+              ></textarea>
+              <button onclick="sendChat()" id="send-btn" class="send-btn">
+                <span class="material-symbols-outlined text-white" style="font-size:18px;" id="send-icon">arrow_upward</span>
+              </button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+              <span style="font-size:10.5px;color:var(--outline);">Shift+Enter for new line · Enter to send</span>
+              <span style="font-size:10.5px;color:var(--outline);">MCP Server · Live</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════
          PAGE: CAMPAIGNS
     ═══════════════════════════════════════════════ -->
     <div id="page-campaigns" class="page">
@@ -1452,13 +2070,21 @@ body.dark .notif-dot {
 <script>
 // ── NAVIGATION ──────────────────────────────────────
 function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Hide all pages first
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
   document.querySelectorAll('.nav-item').forEach(n => {
     n.classList.remove('nav-active');
     n.style.color = '';
   });
+  // Show selected page with correct display type
   const page = document.getElementById('page-' + name);
-  if (page) page.classList.add('active');
+  if (page) {
+    page.classList.add('active');
+    page.style.display = name === 'ai' ? 'flex' : 'block';
+  }
   const nav = document.getElementById('nav-' + name);
   if (nav) {
     nav.classList.add('nav-active');
@@ -1652,7 +2278,7 @@ Always use tools to fetch real data — never make up numbers. For destructive a
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
         system: systemPrompt,
         messages: conversationHistory,
